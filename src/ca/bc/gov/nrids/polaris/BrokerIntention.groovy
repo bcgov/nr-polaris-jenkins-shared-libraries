@@ -50,6 +50,41 @@ class BrokerIntention implements Serializable {
   }
 
   /**
+   * Chainable event details setter
+   * - Named parameters
+   * userName:                    string Sets username
+   * url:                         string Sets event url
+   * provider:                    string Sets event provider
+   * environment:                 string Sets all action environments to this value
+   * packageInstallationVersion:  string Sets all "package-installation" actions package.version to this value
+   */
+  public boolean setEventDetails(Map args) {
+    if (args.userName) {
+      this.userName = userName;
+    }
+    if (args.url) {
+      this.eventUrl = url;
+    }
+    if (args.provider) {
+      this.eventProvider = provider;
+    }
+    if (args.environment) {
+      for (action in this.intention.actions) {
+        action.service.environment = environment
+      }
+    }
+    if (args.packageInstallationVersion) {
+      for (action in this.intention.actions) {
+        if (action.action == "package-installation") {
+          action.package.version = packageVersion
+        }
+      }
+    }
+
+    return this
+  }
+
+  /**
    * Open the intention
    * - Positional parameters
    * authToken   String   The JWT to send to authenticate this request

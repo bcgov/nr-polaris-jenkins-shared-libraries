@@ -1,6 +1,13 @@
 package ca.bc.gov.nrids.polaris
 
 class Podman implements Serializable {
+  /** Podman agent label for agent with unrestricted web access */
+  public static final String AGENT_LABEL_WEB = "podman-external"
+  /** Podman agent label for agent with restricted web access */
+  public static final String AGENT_LABEL_APP = "podman"
+  /** Podman agent label for agent with no web access */
+  public static final String AGENT_LABEL_DATA = "podman-data"
+
   def steps
   def env
   String imagePrefix
