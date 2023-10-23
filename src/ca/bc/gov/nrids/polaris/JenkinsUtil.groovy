@@ -6,7 +6,7 @@ class JenkinsUtil implements Serializable {
    * - Positional parameters
    * build          object  The global currentBuild object is expected
    */
-  def getCauseUserId(build) {
+  static String getCauseUserId(build) {
       def userIdCause = build.getBuildCauses('hudson.model.Cause$UserIdCause');
       final String nameFromUserIdCause = userIdCause != null && userIdCause[0] != null ? userIdCause[0].userId : null;
       if (nameFromUserIdCause != null) {
@@ -21,7 +21,7 @@ class JenkinsUtil implements Serializable {
    * - Positional parameters
    * env          string  The environment name to convert
    */
-  def convertLongEnvToShort(env) {
+  static String convertLongEnvToShort(env) {
       envLongToShort = [:]
       envLongToShort["production"] = "prod"
       envLongToShort["test"] = "test"
