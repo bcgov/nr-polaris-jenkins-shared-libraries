@@ -58,25 +58,25 @@ class BrokerIntention implements Serializable {
    * environment:                 string Sets all action environments to this value
    * packageInstallationVersion:  string Sets all "package-installation" actions package.version to this value
    */
-  public boolean setEventDetails(Map args) {
+  public BrokerIntention setEventDetails(Map args) {
     if (args.userName) {
-      this.userName = userName;
+      this.userName = args.userName;
     }
     if (args.url) {
-      this.eventUrl = url;
+      this.eventUrl = args.url;
     }
     if (args.provider) {
-      this.eventProvider = provider;
+      this.eventProvider = args.provider;
     }
     if (args.environment) {
       for (action in this.intention.actions) {
-        action.service.environment = environment
+        action.service.environment = args.environment
       }
     }
     if (args.packageInstallationVersion) {
       for (action in this.intention.actions) {
         if (action.action == "package-installation") {
-          action.package.version = packageVersion
+          action.package.version = args.packageInstallationVersion
         }
       }
     }
