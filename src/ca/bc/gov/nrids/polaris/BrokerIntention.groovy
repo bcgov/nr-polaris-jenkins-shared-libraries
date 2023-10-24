@@ -60,13 +60,13 @@ class BrokerIntention implements Serializable {
    */
   public BrokerIntention setEventDetails(Map args) {
     if (args.userName) {
-      this.userName = args.userName;
+      this.setUserName(args.userName);
     }
     if (args.url) {
-      this.eventUrl = args.url;
+      this.setEventUrl(args.url);
     }
     if (args.provider) {
-      this.eventProvider = args.provider;
+      this.setEventProvider(args.provider);
     }
     if (args.environment) {
       for (action in this.intention.actions) {
