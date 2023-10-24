@@ -52,6 +52,25 @@ class Vault implements Serializable {
   }
 
   /**
+   * Read to object
+   * - Positional parameters
+   * path   String  The path to the secret to read
+   * Note: kv secrets are located at <mount>/data/<path to secret>
+   * object String  The object to set the key/values on
+   * - Named parameters
+   * keyTransform: Closure    If set, call closure to compute key
+   */
+  def readToObject(Map args, String path, Object obj) {
+    def data = this.read(path);
+    if (data) {
+      data.each { obj[ args.keyTransform ? args.keyTransform(it.key) : it.key] = it.value }
+    }
+  }
+  def readToObject(String path, Object obj) {
+    this.run([:], path, obj)
+  }
+
+  /**
    * Revokes the token
    */
   public int revokeToken() {
