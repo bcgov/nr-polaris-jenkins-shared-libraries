@@ -1,12 +1,13 @@
 package ca.bc.gov.nrids.polaris
 
-
-def envLongToShort = [:]
-envLongToShort["production"] = "prod"
-envLongToShort["test"] = "test"
-envLongToShort["development"] = "dev"
-
 class JenkinsUtil implements Serializable {
+
+  private final static def envLongToShort = [
+    production: "prod",
+    test: "test",
+    development: "dev"
+  ]
+
   /**
    * Get NR Broker compatible cause user id from build (currentBuild)
    * - Positional parameters
@@ -16,9 +17,9 @@ class JenkinsUtil implements Serializable {
       def userIdCause = build.getBuildCauses('hudson.model.Cause$UserIdCause');
       final String nameFromUserIdCause = userIdCause != null && userIdCause[0] != null ? userIdCause[0].userId : null;
       if (nameFromUserIdCause != null) {
-          return nameFromUserIdCause + "@azureidir";
+        return nameFromUserIdCause + "@azureidir";
       } else {
-          return 'unknown'
+        return 'unknown'
       }
   }
 
@@ -28,6 +29,6 @@ class JenkinsUtil implements Serializable {
    * env          string  The environment name to convert
    */
   static String convertLongEnvToShort(env) {
-      return envLongToShort[env]
+    return JenkinsUtil.envLongToShort[env]
   }
 }
