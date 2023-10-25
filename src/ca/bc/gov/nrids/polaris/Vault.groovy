@@ -3,10 +3,11 @@ package ca.bc.gov.nrids.polaris
 class Vault implements Serializable {
   def token
   def baseUrl
-  static final String VAULT_BASE_URL = "https://vault-iit.apps.silver.devops.gov.bc.ca/v1/"
+  static final String KNOX_URL = "https://knox.io.nrs.gov.bc.ca"
+  static final String KNOX_API_URL = "https://knox.io.nrs.gov.bc.ca/v1/"
   static final String HEADER_VAULT_TOKEN = "X-Vault-Token"
 
-  Vault(String token, String baseUrl = VAULT_BASE_URL) {
+  Vault(String token, String baseUrl = KNOX_API_URL) {
     this.token = token
     this.baseUrl = baseUrl
   }
@@ -16,7 +17,7 @@ class Vault implements Serializable {
    * - Positional parameters
    * token   String  The token to unwrap
    */
-  static String unwrapToken(String token, baseUrl = VAULT_BASE_URL) {
+  static String unwrapToken(String token, baseUrl = KNOX_API_URL) {
     def post = new URL(baseUrl + "sys/wrapping/unwrap").openConnection()
     post.setRequestMethod("POST")
     post.setRequestProperty("Content-Type", "application/json")
@@ -49,6 +50,25 @@ class Vault implements Serializable {
     def resp = jsonSlurper.parseText(req.getInputStream().getText())
 
     return resp.data.data
+  }
+
+  /**
+   * Read to object
+   * - Positional parameters
+   * path   String  The path to the secret to read
+   * Note: kv secrets are located at <mount>/data/<path to secret>
+   * object String  The object to set the key/values on
+   * - Named parameters
+   * keyTransform: Closure    If set, call closure to compute key
+   */
+  def readToObject(Map args, String path, Object obj) {
+    def data = this.read(path);
+    if (data) {
+      data.each { obj[ args.keyTransform ? args.keyTransform(it.key) : it.key] = it.value }
+    }
+  }
+  def readToObject(String path, Object obj) {
+    this.run([:], path, obj)
   }
 
   /**
