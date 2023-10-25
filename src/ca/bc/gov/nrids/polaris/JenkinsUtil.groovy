@@ -12,14 +12,15 @@ class JenkinsUtil implements Serializable {
    * Get NR Broker compatible cause user id from build (currentBuild)
    * - Positional parameters
    * build          object  The global currentBuild object is expected
+   * defaultUser    string  The default user id
    */
-  static String getCauseUserId(build) {
-      def userIdCause = build.getBuildCauses('hudson.model.Cause$UserIdCause');
-      final String nameFromUserIdCause = userIdCause != null && userIdCause[0] != null ? userIdCause[0].userId : null;
+  static String getCauseUserId(build, defaultUser = "unknown") {
+      def userIdCause = build.getBuildCauses('hudson.model.Cause$UserIdCause')
+      final String nameFromUserIdCause = userIdCause != null && userIdCause[0] != null ? userIdCause[0].userId : null
       if (nameFromUserIdCause != null) {
-        return nameFromUserIdCause + "@azureidir";
+        return nameFromUserIdCause + "@azureidir"
       } else {
-        return 'unknown'
+        return defaultUser ? defaultUser : 'unknown'
       }
   }
 
