@@ -89,6 +89,7 @@ class BrokerIntention implements Serializable {
    * - Positional parameters
    * authToken   String   The JWT to send to authenticate this request
    * - Named parameters
+   * quickstart: boolean  If an intention has a single action, setting this true will start the action.
    * ttl:        Number   The time to live (ttl) for the intention.
    *                      Long running processes may need to set this higher than the default.
    */
@@ -100,8 +101,15 @@ class BrokerIntention implements Serializable {
     }
 
     // POST open
-    def params = args.ttl ? "?ttl=${args.ttl}" : ""
-    def post = new URL(this.BROKER_BASE_URL + "intention/open" + params).openConnection()
+    def params = [:]
+    if (args.ttl) {
+      params["ttl"] = args.ttl
+    }
+    if (args.quickstart) {
+      params["quickstart"] = "true"
+    }
+    def paramStr = params.collect({ it }).join('&')
+    def post = new URL(this.BROKER_BASE_URL + "intention/open?" + paramStr).openConnection()
     def message = groovy.json.JsonOutput.toJson(intention)
     post.setRequestMethod("POST")
     post.setDoOutput(true)
