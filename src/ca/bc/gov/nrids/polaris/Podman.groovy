@@ -30,7 +30,7 @@ class Podman implements Serializable {
    */
   def build(Map args, String context) {
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
-      "podman build --authfile=${args.authfile ?: authfile} ${args.options ?: ''} ${args.tag ? '--tag ' + args.tag : ''} ${context}";
+      "podman build --authfile=${args.authfile ?: authfile} ${args.options ?: ''} --no-cache ${args.tag ? '--tag ' + args.tag : ''} ${context}";
     steps.sh shellCmd
   }
   def build(Map args) {
