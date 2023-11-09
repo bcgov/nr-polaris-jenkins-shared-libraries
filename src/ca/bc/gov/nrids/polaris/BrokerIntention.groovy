@@ -70,9 +70,7 @@ class BrokerIntention implements Serializable {
     }
     if (args.environment) {
       for (action in this.intention.actions) {
-        if (action.action != "server-access") {
-          action.service.environment = args.environment
-        }        
+        action.service.environment = args.environment
       }
     }
     if (args.packageInstallationVersion) {
