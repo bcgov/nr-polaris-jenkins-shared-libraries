@@ -68,7 +68,7 @@ class Vault implements Serializable {
     }
   }
   def readToObject(String path, Object obj) {
-    this.run([:], path, obj)
+    this.readToObject([:], path, obj)
   }
 
   /**
