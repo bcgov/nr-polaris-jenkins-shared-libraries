@@ -121,7 +121,9 @@ class BrokerIntention implements Serializable {
       this.openResponse = jsonSlurper.parseText(post.getInputStream().getText())
       return true
     }
-    throw new IllegalStateException(post.getInputStream().getText())
+    def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
+    def errorMessage = "Failed to open intention. Response code: $postRC Response body: $errorResponseBody"
+    throw new IllegalStateException(errorMessage)
   }
   def open(String authToken) {
     this.open([:], authToken)
@@ -218,9 +220,11 @@ class BrokerIntention implements Serializable {
       post.setRequestProperty("X-Vault-Role-Id", (String) roleId)
     }
     post.setRequestProperty(HEADER_BROKER_TOKEN, (String) actionToken)
-
-    if (!this.isResponseSuccess(post.getResponseCode())) {
-      throw new IllegalStateException(post.getInputStream().getText())
+    def postRC = post.getResponseCode()
+    if (!this.isResponseSuccess(postRC)) {
+      def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
+      def errorMessage = "Failed to provision secret id. Response code: $postRC Response body: $errorResponseBody"
+      throw new IllegalStateException(errorMessage)
     }
     def wrappedTokenResponse = jsonSlurper.parseText(post.getInputStream().getText())
     return wrappedTokenResponse.wrap_info.token
@@ -256,9 +260,12 @@ class BrokerIntention implements Serializable {
       post.setRequestProperty("X-Vault-Role-Id", (String) roleId)
     }
     post.setRequestProperty(HEADER_BROKER_TOKEN, (String) actionToken)
+    def postRC = post.getResponseCode()
+    if (!this.isResponseSuccess(postRC)) {
+      def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
+      def errorMessage = "Failed to provision token. Response code: $postRC Response body: $errorResponseBody"
 
-    if (!this.isResponseSuccess(post.getResponseCode())) {
-      throw new IllegalStateException(post.getInputStream().getText())
+      throw new IllegalStateException(errorMessage)
     }
     def wrappedTokenResponse = jsonSlurper.parseText(post.getInputStream().getText())
 
@@ -273,3 +280,4 @@ class BrokerIntention implements Serializable {
     return code >= 200 && code <= 299
   }
 }
+
