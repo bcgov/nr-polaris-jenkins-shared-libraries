@@ -32,4 +32,52 @@ class JenkinsUtil implements Serializable {
   static String convertLongEnvToShort(env) {
     return JenkinsUtil.envLongToShort[env]
   }
+
+  def putFile(username, password, apiURL, filePath) {
+    try {
+        def requestBody = new File(filePath)
+        def encodeBody = URLEncoder.encode(requestBody, "UTF-8")
+        def url = new URL(apiUrl)
+        def connection = url.openConnection()
+
+        // Basic Authentication
+        String auth = "${username}:${password}"
+        String encodedAuth = Base64.getEncoder().encodeToString(auth.bytes)
+        String authHeader = "Basic ${encodedAuth}"
+        connection.setRequestProperty("Authorization", authHeader)
+        
+        connection.setRequestMethod("POST")
+        connection.setRequestProperty("Content-Type", "application/octet-stream")
+        connection.setDoOutput(true)
+    } catch (Exception e) {
+        println "Error on creating file and encoding path: ${e.message}"
+        throw e
+    }
+
+    try {
+        OutputStream os = connection.getOutputStream()
+        byte[] input = encodeBody.getBytes("utf-8")
+        os.write(input, 0, input.length)
+    } catch (IOException e) {
+        println "Error writing to OutputStream: ${e.message}"
+        throw e
+    }
+
+    def responseCode = connection.getResponseCode()
+
+    println "Response Code: $responseCode"
+
+    if (responseCode == HttpURLConnection.HTTP_OK) {
+        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))
+        StringBuilder response = new StringBuilder()
+        String responseLine
+        while ((responseLine = br.readLine()) != null) {
+            response.append(responseLine.trim())
+        }
+        println "Response Data: $response"
+    } else {
+        println "Error: ${connection.getResponseMessage()}"
+    }
+
+  }
 }
