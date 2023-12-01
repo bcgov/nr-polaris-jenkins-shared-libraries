@@ -35,31 +35,27 @@ class JenkinsUtil implements Serializable {
 
   static void putFile(username, password, apiURL, filePath) {
     try {
-        def encodeBody = URLEncoder.encode(new File(filePath), "UTF-8")
-        def url = new URL(apiUrl)
-        def connection = url.openConnection()
+      def requestBody = new File(filePath)
+      def encodeBody = URLEncoder.encode(requestBody, "UTF-8")
+      def url = new URL(apiURL)
+      def connection = url.openConnection()
 
-        // Basic Authentication
-        String auth = "${username}:${password}"
-        String encodedAuth = Base64.getEncoder().encodeToString(auth.bytes)
-        String authHeader = "Basic ${encodedAuth}"
-        connection.setRequestProperty("Authorization", authHeader)
-        
-        connection.setRequestMethod("POST")
-        connection.setRequestProperty("Content-Type", "application/octet-stream")
-        connection.setDoOutput(true)
-    } catch (Exception e) {
-        println "Error on creating file and encoding path: ${e.message}"
-        throw e
-    }
-
-    try {
-        OutputStream os = connection.getOutputStream()
-        byte[] input = encodeBody.getBytes("utf-8")
-        os.write(input, 0, input.length)
+      // Basic Authentication
+      String auth = "${username}:${password}"
+      String encodedAuth = Base64.getEncoder().encodeToString(auth.bytes)
+      String authHeader = "Basic ${encodedAuth}"
+      connection.setRequestProperty("Authorization", authHeader)
+      
+      connection.setRequestMethod("POST")
+      connection.setRequestProperty("Content-Type", "application/octet-stream")
+      connection.setDoOutput(true)
+    
+      OutputStream os = connection.getOutputStream()
+      byte[] input = encodeBody.getBytes("utf-8")
+      os.write(input, 0, input.length)
     } catch (IOException e) {
-        println "Error writing to OutputStream: ${e.message}"
-        throw e
+      println "Error writing to OutputStream: ${e.message}"
+      throw e
     }
 
     def responseCode = connection.getResponseCode()
