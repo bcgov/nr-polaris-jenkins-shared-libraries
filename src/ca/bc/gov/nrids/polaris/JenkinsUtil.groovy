@@ -33,10 +33,9 @@ class JenkinsUtil implements Serializable {
     return JenkinsUtil.envLongToShort[env]
   }
 
-  def putFile(username, password, apiURL, filePath) {
+  static void putFile(username, password, apiURL, filePath) {
     try {
-        def requestBody = new File(filePath)
-        def encodeBody = URLEncoder.encode(requestBody, "UTF-8")
+        def encodeBody = URLEncoder.encode(new File(filePath), "UTF-8")
         def url = new URL(apiUrl)
         def connection = url.openConnection()
 
