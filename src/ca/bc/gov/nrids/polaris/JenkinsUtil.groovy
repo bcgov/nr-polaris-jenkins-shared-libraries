@@ -52,27 +52,26 @@ class JenkinsUtil implements Serializable {
     
       OutputStream os = connection.getOutputStream()
       byte[] input = encodeBody.getBytes("utf-8")
-      os.write(input, 0, input.length)
-    } catch (IOException e) {
-      println "Error writing to OutputStream: ${e.message}"
+      os.write(input, 0, input.length)    
+
+      def responseCode = connection.getResponseCode()
+
+      println "Response Code: $responseCode"
+
+      if (responseCode == HttpURLConnection.HTTP_OK) {
+          BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))
+          StringBuilder response = new StringBuilder()
+          String responseLine
+          while ((responseLine = br.readLine()) != null) {
+              response.append(responseLine.trim())
+          }
+          println "Response Data: $response"
+      } else {
+          println "Error: ${connection.getResponseMessage()}"
+      }
+    } catch (Exception e) {
+      println "Error Occurs: ${e.message}"
       throw e
     }
-
-    def responseCode = connection.getResponseCode()
-
-    println "Response Code: $responseCode"
-
-    if (responseCode == HttpURLConnection.HTTP_OK) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"))
-        StringBuilder response = new StringBuilder()
-        String responseLine
-        while ((responseLine = br.readLine()) != null) {
-            response.append(responseLine.trim())
-        }
-        println "Response Data: $response"
-    } else {
-        println "Error: ${connection.getResponseMessage()}"
-    }
-
   }
 }
