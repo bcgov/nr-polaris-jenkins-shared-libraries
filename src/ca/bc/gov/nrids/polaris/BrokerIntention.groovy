@@ -80,10 +80,10 @@ class BrokerIntention implements Serializable {
         }
       }
     }
-    if (args.packageInstallationBuildGuid) {
+    if (args.packageInstallationSourceIntention) {
       for (action in this.intention.actions) {
         if (action.action == "package-installation") {
-          action.package.buildGuid = args.packageInstallationBuildGuid
+          action.source.intention = args.packageInstallationSourceIntention
         }
       }
     }
