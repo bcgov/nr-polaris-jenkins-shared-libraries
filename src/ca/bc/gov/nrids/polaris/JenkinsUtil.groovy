@@ -18,7 +18,7 @@ class JenkinsUtil implements Serializable {
       def userIdCause = build.getBuildCauses('hudson.model.Cause$UserIdCause')
       final String nameFromUserIdCause = userIdCause != null && userIdCause[0] != null ? userIdCause[0].userId : null
       if (nameFromUserIdCause != null) {
-        return nameFromUserIdCause + "@azureidir"
+        return nameFromUserIdCause.toLowerCase() + "@azureidir"
       } else {
         return defaultUser ? defaultUser : 'unknown'
       }
