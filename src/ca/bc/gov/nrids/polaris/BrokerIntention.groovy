@@ -142,11 +142,11 @@ class BrokerIntention implements Serializable {
    * action   String  The action id from the intention
    */
   public void startAction(String action) {
-    if (!action) {
-      throw new IllegalArgumentException()
-    }
     if (!this.openResponse) {
       throw new IllegalStateException()
+    }
+    if (!action || !this.openResponse.actions[action]) {
+      throw new IllegalArgumentException()
     }
     this.actionLifecycleLog(this.openResponse.actions[action].token, "start")
   }
@@ -157,11 +157,11 @@ class BrokerIntention implements Serializable {
    * action   String  The action id from the intention
    */
   public void endAction(String action) {
-    if (!action) {
-      throw new IllegalArgumentException()
-    }
     if (!this.openResponse) {
       throw new IllegalStateException()
+    }
+    if (!action || !this.openResponse.actions[action]) {
+      throw new IllegalArgumentException()
     }
     this.actionLifecycleLog(this.openResponse.actions[action].token, "end")
   }
@@ -171,6 +171,40 @@ class BrokerIntention implements Serializable {
     post.setRequestMethod("POST")
     post.setRequestProperty("Content-Type", "application/json")
     post.setRequestProperty(HEADER_BROKER_TOKEN, token)
+    return this.isResponseSuccess(post.getResponseCode())
+  }
+
+  public boolean registerActionArtifact(String action, String message) {
+    if (!this.openResponse) {
+      throw new IllegalStateException()
+    }
+    if (!action || !this.openResponse.actions[action]) {
+      throw new IllegalArgumentException()
+    }
+
+    def post = new URL(this.BROKER_BASE_URL + "intention/action/artifact").openConnection()
+    post.setRequestMethod("POST")
+    post.setDoOutput(true)
+    post.setRequestProperty("Content-Type", "application/json")
+    post.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
+    post.getOutputStream().write(message.getBytes("UTF-8"))
+    return this.isResponseSuccess(post.getResponseCode())
+  }
+
+  public boolean registerActionInstall(String action, String message, String strategy) {
+    if (!this.openResponse) {
+      throw new IllegalStateException()
+    }
+    if (!action || !this.openResponse.actions[action]) {
+      throw new IllegalArgumentException()
+    }
+
+    def post = new URL(this.BROKER_BASE_URL + "intention/action/install?strategy=" + strategy).openConnection()
+    post.setRequestMethod("POST")
+    post.setDoOutput(true)
+    post.setRequestProperty("Content-Type", "application/json")
+    post.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
+    post.getOutputStream().write(message.getBytes("UTF-8"))
     return this.isResponseSuccess(post.getResponseCode())
   }
 
