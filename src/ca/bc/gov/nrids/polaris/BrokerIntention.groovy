@@ -73,6 +73,34 @@ class BrokerIntention implements Serializable {
         action.service.environment = args.environment
       }
     }
+    if (args.packageBuildBuildGuid) {
+      for (action in this.intention.actions) {
+        if (action.action == "package-build") {
+          action.package.buildVersion = args.packageBuildBuildGuid
+        }
+      }
+    }
+    if (args.packageBuildBuildNumber) {
+      for (action in this.intention.actions) {
+        if (action.action == "package-build") {
+          action.package.buildVersion = args.packageBuildBuildNumber
+        }
+      }
+    }
+    if (args.packageBuildBuildVerion) {
+      for (action in this.intention.actions) {
+        if (action.action == "package-build") {
+          action.package.buildVersion = args.packageBuildBuildVerion
+        }
+      }
+    }
+    if (args.packageBuildVersion) {
+      for (action in this.intention.actions) {
+        if (action.action == "package-build") {
+          action.package.version = args.packageBuildVersion
+        }
+      }
+    }
     if (args.packageInstallationVersion) {
       for (action in this.intention.actions) {
         if (action.action == "package-installation") {
@@ -183,6 +211,23 @@ class BrokerIntention implements Serializable {
     }
 
     def post = new URL(this.BROKER_BASE_URL + "intention/action/artifact").openConnection()
+    post.setRequestMethod("POST")
+    post.setDoOutput(true)
+    post.setRequestProperty("Content-Type", "application/json")
+    post.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
+    post.getOutputStream().write(message.getBytes("UTF-8"))
+    return this.isResponseSuccess(post.getResponseCode())
+  }
+
+  public boolean patchAction(String action, String message) {
+    if (!this.openResponse) {
+      throw new IllegalStateException()
+    }
+    if (!action || !this.openResponse.actions[action]) {
+      throw new IllegalArgumentException()
+    }
+
+    def post = new URL(this.BROKER_BASE_URL + "intention/action/patch").openConnection()
     post.setRequestMethod("POST")
     post.setDoOutput(true)
     post.setRequestProperty("Content-Type", "application/json")
