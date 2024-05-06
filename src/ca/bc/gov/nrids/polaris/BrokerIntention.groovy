@@ -209,7 +209,14 @@ class BrokerIntention implements Serializable {
     post.setRequestProperty("Content-Type", "application/json")
     post.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
     post.getOutputStream().write(message.getBytes("UTF-8"))
-    return this.isResponseSuccess(post.getResponseCode())
+    def postRC = post.getResponseCode()
+    if (!this.isResponseSuccess(postRC)) {
+      def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
+      def errorMessage = "Failed to patch. Response code: $postRC Response body: $errorResponseBody"
+
+      throw new IllegalStateException(errorMessage)
+    }
+    return true
   }
 
   /**
