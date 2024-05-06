@@ -325,10 +325,10 @@ class BrokerIntention implements Serializable {
     return code >= 200 && code <= 299
   }
 
-  private void updatePackageForAction(String action, String key, String value) {
+  private void updatePackageForAction(String actionName, String key, String value) {
     if (value) {
       for (action in this.intention.actions) {
-        if (action.action == action) {
+        if (action.action == actionName) {
           action.package[key] = value
         }
       }
