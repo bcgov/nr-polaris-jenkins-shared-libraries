@@ -73,13 +73,17 @@ class BrokerIntention implements Serializable {
         action.service.environment = args.environment
       }
     }
-    if (args.packageInstallationVersion) {
-      for (action in this.intention.actions) {
-        if (action.action == "package-installation") {
-          action.package.version = args.packageInstallationVersion
-        }
-      }
-    }
+    this.updatePackageForAction("package-build", "buildGuid", args.packageBuildBuildGuid)
+    this.updatePackageForAction("package-build", "buildNumber", args.packageBuildBuildNumber)
+    this.updatePackageForAction("package-build", "buildVersion", args.packageBuildBuildVerion)
+    this.updatePackageForAction("package-build", "description", args.packageBuildDescription)
+    this.updatePackageForAction("package-build", "name", args.packageBuildName)
+    this.updatePackageForAction("package-build", "type", args.packageBuildType)
+    this.updatePackageForAction("package-build", "version", args.packageBuildVersion)
+    // Update installation package
+    this.updatePackageForAction("package-installation", "name", args.packageInstallationName)
+    this.updatePackageForAction("package-installation", "version", args.packageInstallationVersion)
+    // Update installation source
     if (args.packageInstallationSourceIntention) {
       for (action in this.intention.actions) {
         if (action.action == "package-installation") {
@@ -191,7 +195,7 @@ class BrokerIntention implements Serializable {
     return this.isResponseSuccess(post.getResponseCode())
   }
 
-  public boolean registerActionInstall(String action, String message, String strategy) {
+  public boolean patchAction(String action, String message) {
     if (!this.openResponse) {
       throw new IllegalStateException()
     }
@@ -199,13 +203,20 @@ class BrokerIntention implements Serializable {
       throw new IllegalArgumentException()
     }
 
-    def post = new URL(this.BROKER_BASE_URL + "intention/action/install?strategy=" + strategy).openConnection()
+    def post = new URL(this.BROKER_BASE_URL + "intention/action/patch").openConnection()
     post.setRequestMethod("POST")
     post.setDoOutput(true)
     post.setRequestProperty("Content-Type", "application/json")
     post.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
     post.getOutputStream().write(message.getBytes("UTF-8"))
-    return this.isResponseSuccess(post.getResponseCode())
+    def postRC = post.getResponseCode()
+    if (!this.isResponseSuccess(postRC)) {
+      def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
+      def errorMessage = "Failed to patch. Response code: $postRC Response body: $errorResponseBody"
+
+      throw new IllegalStateException(errorMessage)
+    }
+    return true
   }
 
   /**
@@ -319,6 +330,16 @@ class BrokerIntention implements Serializable {
 
   private boolean isResponseSuccess(code) {
     return code >= 200 && code <= 299
+  }
+
+  private void updatePackageForAction(String actionName, String key, String value) {
+    if (value) {
+      for (action in this.intention.actions) {
+        if (action.action == actionName) {
+          action.package[key] = value
+        }
+      }
+    }
   }
 }
 
