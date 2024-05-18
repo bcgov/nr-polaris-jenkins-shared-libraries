@@ -68,6 +68,16 @@ class BrokerIntention implements Serializable {
     if (args.provider) {
       this.setEventProvider(args.provider);
     }
+    if (args.serviceName) {
+      for (action in this.intention.actions) {
+        action.service.name = args.serviceName
+      }
+    }
+    if (args.project) {
+      for (action in this.intention.actions) {
+        action.service.project = args.project
+      }
+    }
     if (args.environment) {
       for (action in this.intention.actions) {
         action.service.environment = args.environment
