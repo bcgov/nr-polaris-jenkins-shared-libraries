@@ -8,6 +8,12 @@ class JenkinsUtil implements Serializable {
     development: "dev"
   ]
 
+  private final static def envShortToLong = [
+    prod: "production",
+    test: "test",
+    dev: "development"
+  ]
+
   /**
    * Get NR Broker compatible cause user id from build (currentBuild)
    * - Positional parameters
@@ -50,6 +56,15 @@ class JenkinsUtil implements Serializable {
    */
   static String convertLongEnvToShort(env) {
     return JenkinsUtil.envLongToShort[env]
+  }
+
+  /**
+   * Converts a standard short environment name into its long version
+   * - Positional parameters
+   * env          string  The environment name to convert
+   */
+  static String convertShortEnvToLong(env) {
+    return JenkinsUtil.envShortToLong[env]
   }
 
   static void putFile(username, password, apiURL, filePath) {
