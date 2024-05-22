@@ -73,9 +73,9 @@ class BrokerIntention implements Serializable {
         action.service.name = args.serviceName
       }
     }
-    if (args.project) {
+    if (args.serviceProject) {
       for (action in this.intention.actions) {
-        action.service.project = args.project
+        action.service.project = args.serviceProject
       }
     }
     if (args.environment) {
