@@ -8,12 +8,6 @@ class JenkinsUtil implements Serializable {
     development: "dev"
   ]
 
-  private final static def envShortToLong = [
-    prod: "production",
-    test: "test",
-    dev: "development"
-  ]
-
   /**
    * Get NR Broker compatible cause user id from build (currentBuild)
    * - Positional parameters
@@ -59,12 +53,26 @@ class JenkinsUtil implements Serializable {
   }
 
   /**
+   * Inverts the keys and values of an existing map
+   * - Positional parameters
+   * originalMap  map     The map to convert
+   */
+  def invertMap(Map originalMap) {
+    def invertedMap = [:]
+    originalMap.each { key, value ->
+      invertedMap[value] = key
+    }
+    return invertedMap
+  }
+
+  /**
    * Converts a standard short environment name into its long version
    * - Positional parameters
    * env          string  The environment name to convert
    */
   static String convertShortEnvToLong(env) {
-    return JenkinsUtil.envShortToLong[env]
+    def invertedMap = invertMap(this.envLongToShort)
+    return invertedMap[env]
   }
 
   static void putFile(username, password, apiURL, filePath) {
