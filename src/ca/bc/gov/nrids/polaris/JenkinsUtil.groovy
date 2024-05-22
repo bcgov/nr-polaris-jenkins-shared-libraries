@@ -60,7 +60,7 @@ class JenkinsUtil implements Serializable {
   static Map<String, String> invertMap(Map<String, String> originalMap) {
     def invertedMap = [:]
     originalMap.each { key, value ->
-        invertedMap[value] = key
+      invertedMap[value] = key
     }
     return invertedMap
   }
