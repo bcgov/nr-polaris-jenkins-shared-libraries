@@ -33,7 +33,6 @@ class JenkinsUtil implements Serializable {
   static String getUpstreamCauseUserId(build, defaultUser = "unknown") {
     final hudson.model.Cause$UpstreamCause upstreamCause = build.rawBuild.getCause(hudson.model.Cause$UpstreamCause)
     if (upstreamCause.getUpstreamRun().getCause(hudson.triggers.TimerTrigger$TimerTriggerCause)) {
-        println "Scheduled Data Fix User ID: ${defaultUser}"
         return defaultUser
     }
     final hudson.model.Cause$UserIdCause userIdCause = upstreamCause == null ?
