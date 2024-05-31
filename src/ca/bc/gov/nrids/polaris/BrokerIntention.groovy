@@ -85,7 +85,7 @@ class BrokerIntention implements Serializable {
     }
     this.updatePackageForAction("package-build", "buildGuid", args.packageBuildBuildGuid)
     this.updatePackageForAction("package-build", "buildNumber", args.packageBuildBuildNumber)
-    this.updatePackageForAction("package-build", "buildVersion", args.packageBuildBuildVerion)
+    this.updatePackageForAction("package-build", "buildVersion", args.packageBuildBuildVersion)
     this.updatePackageForAction("package-build", "description", args.packageBuildDescription)
     this.updatePackageForAction("package-build", "name", args.packageBuildName)
     this.updatePackageForAction("package-build", "type", args.packageBuildType)
