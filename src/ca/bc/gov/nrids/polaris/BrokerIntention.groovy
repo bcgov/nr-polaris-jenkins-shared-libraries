@@ -338,6 +338,26 @@ class BrokerIntention implements Serializable {
     return Vault.unwrapToken(wrappedTokenResponse.wrap_info.token)
   }
 
+  /**
+   * Get all action tokens.
+   * @return A map of action ids to their corresponding tokens
+   * @throws IllegalStateException if the openResponse is not available
+   */
+  public Map<String, String> getAllActionTokens() {
+    if (!this.openResponse) {
+        throw new IllegalStateException("Open response is not available")
+    }
+    // Serialize the map to a JSON string
+    def jsonOutput = new groovy.json.JsonOutput()
+    def jsonString = jsonOutput.toJson(this.openResponse)
+    def jsonSlurper = new groovy.json.JsonSlurperClassic()
+    def jsonObject = jsonSlurper.parseText(jsonString)
+    def actionTokens = jsonObject.actions.collectEntries { key, value ->
+      [(key): value.token]
+    }
+    return actionTokens
+  }
+
   private boolean isResponseSuccess(code) {
     return code >= 200 && code <= 299
   }
