@@ -42,6 +42,13 @@ class BrokerIntention implements Serializable {
     intention.event.url = (String) url
   }
 
+  def getReason() {
+    return intention.event.reason
+  }
+  def setReason(reason) {
+    intention.event.reason = (String) reason
+  }
+
   def getEventProvider() {
     return intention.event.provider
   }
@@ -54,6 +61,7 @@ class BrokerIntention implements Serializable {
    * - Named parameters
    * userName:                    string Sets username
    * url:                         string Sets event url
+   * reason:                      string Sets event reason
    * provider:                    string Sets event provider
    * environment:                 string Sets all action environments to this value
    * packageInstallationVersion:  string Sets all "package-installation" actions package.version to this value
@@ -67,6 +75,9 @@ class BrokerIntention implements Serializable {
     }
     if (args.provider) {
       this.setEventProvider(args.provider);
+    }
+    if (args.reason) {
+      this.setReason(args.reason);
     }
     if (args.serviceName) {
       for (action in this.intention.actions) {
