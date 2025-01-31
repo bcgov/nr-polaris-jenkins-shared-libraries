@@ -97,11 +97,6 @@ class BrokerIntention implements Serializable {
         action.service.environment = args.environment
       }
     }
-    if (args.serviceTargetEnvironment) {
-      for (action in this.intention.actions) {
-        action.service.target.environment = args.serviceTargetEnvironment
-      }
-    }
     this.updatePackageForAction("package-build", "buildGuid", args.packageBuildBuildGuid)
     this.updatePackageForAction("package-build", "buildNumber", args.packageBuildBuildNumber)
     this.updatePackageForAction("package-build", "buildVersion", args.packageBuildBuildVersion)
@@ -117,6 +112,14 @@ class BrokerIntention implements Serializable {
       for (action in this.intention.actions) {
         if (action.action == "package-installation") {
           action.source.intention = args.packageInstallationSourceIntention
+        }
+      }
+    }
+    // Update service target environment
+    if (args.serviceTargetEnvironment) {
+      for (action in this.intention.actions) {
+        if (action.action == "server-access") {
+          action.service.target.environment = args.serviceTargetEnvironment
         }
       }
     }
