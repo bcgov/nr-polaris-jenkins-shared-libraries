@@ -67,6 +67,7 @@ class BrokerIntention implements Serializable {
    * serviceProject               string Sets service project
    * environment:                 string Sets all action environments to this value
    * packageInstallationVersion:  string Sets all "package-installation" actions package.version to this value
+   * serviceTargetEnvironment:    string Sets all action service target environments to this value
    */
   public BrokerIntention setEventDetails(Map args) {
     if (args.userName) {
@@ -94,6 +95,11 @@ class BrokerIntention implements Serializable {
     if (args.environment) {
       for (action in this.intention.actions) {
         action.service.environment = args.environment
+      }
+    }
+    if (args.serviceTargetEnvironment) {
+      for (action in this.intention.actions) {
+        action.service.target.environment = args.serviceTargetEnvironment
       }
     }
     this.updatePackageForAction("package-build", "buildGuid", args.packageBuildBuildGuid)
