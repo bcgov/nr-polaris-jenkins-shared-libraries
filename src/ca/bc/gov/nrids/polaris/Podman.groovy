@@ -139,7 +139,8 @@ class Podman implements Serializable {
     def shellCmd = (args.echoEnv ? "echo \$${args.httpProxy} | " : "") +
       (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "podman run --rm " + (args.echoEnv ? "-it " : "") +
-      "--authfile=${args.authfile ?: authfile} ${args.options ?: ''} ${envOpts} ${renderImageId(args, imageId)} ${args.command ?: ''}"
+      (args.authfile ?  "--authfile=${args.authfile} " : "") +
+      "${args.options ?: ''} ${envOpts} ${renderImageId(args, imageId)} ${args.command ?: ''}"
     if (args.returnStdout)
       return steps.sh(script: shellCmd, returnStdout: true)
     else {
