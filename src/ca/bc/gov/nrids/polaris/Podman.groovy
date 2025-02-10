@@ -165,7 +165,7 @@ class Podman implements Serializable {
    * Private: Renders image prefix
    */
   def renderImageId(Map args, String imageId) {
-    def prefix = args.imagePrefix ?: imagePrefix
+    def prefix = !args.containsKey('imagePrefix') || args.imagePrefix == null ? imagePrefix : args.imagePrefix
     return (prefix ? prefix + '/' : '') + imageId
   }
 }
