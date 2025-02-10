@@ -129,16 +129,14 @@ class Podman implements Serializable {
    * returnStdout:    bool    If true, return standard out
    * skipPipelineEnv: bool    If true (or if env in constructor was null), do not automatically add all environment variables
    * authfile:        string  If set, override the default authfile
-   * echoEnv:         string  If set, echo this env var as input (for a password as an example)
    */
   def run(Map args, String imageId) {
     def toEnvOptions = {
       it.collect { "-e ${it.key}=${it.value.replaceAll(' ', '\\\\ ')}" } join " "
     }
     def envOpts = this.env && !args.skipPipelineEnv ? toEnvOptions(this.env) : ''
-    def shellCmd = (args.echoEnv ? "echo \$${args.httpProxy} | " : "") +
-      (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
-      "podman run --rm " + (args.echoEnv ? "-it " : "") +
+    def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
+      "podman run --rm " +
       (args.authfile ?  "--authfile=${args.authfile} " : "") +
       "${args.options ?: ''} ${envOpts} ${renderImageId(args, imageId)} ${args.command ?: ''}"
     if (args.returnStdout)
