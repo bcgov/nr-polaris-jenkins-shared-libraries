@@ -40,7 +40,7 @@ class JenkinsUtil implements Serializable {
         upstreamCause.getUpstreamRun().getCause(hudson.model.Cause$UserIdCause)
     final String nameFromUserIdCause = userIdCause != null ? userIdCause.userId : null
     if (nameFromUserIdCause != null) {
-        return nameFromUserIdCause + "@azureidir"
+      return nameFromUserIdCause.toLowerCase() + "@azureidir"
     } else {
         return defaultUser ? defaultUser : 'unknown'
     }
