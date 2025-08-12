@@ -56,6 +56,32 @@ class BrokerIntention implements Serializable {
     intention.event.provider = (String) provider
   }
 
+  // Getters and setters for event.trigger fields
+  def getEventTriggerId() {
+    return intention.event?.trigger?.id
+  }
+  def setEventTriggerId(id) {
+    if (!intention.event.trigger) intention.event.trigger = [:]
+    intention.event.trigger.id = (String) id
+  }
+
+  def getEventTriggerName() {
+    return intention.event?.trigger?.name
+  }
+  def setEventTriggerName(name) {
+    if (!intention.event.trigger) intention.event.trigger = [:]
+    intention.event.trigger.name = (String) name
+  }
+
+  def getEventTriggerUrl() {
+    return intention.event?.trigger?.url
+  }
+  def setEventTriggerUrl(url) {
+    if (!intention.event.trigger) intention.event.trigger = [:]
+    intention.event.trigger.url = (String) url
+  }
+
+
   /**
    * Chainable event details setter
    * - Named parameters
@@ -64,6 +90,9 @@ class BrokerIntention implements Serializable {
    * reason:                      string Sets event reason
    * provider:                    string Sets event provider
    * serviceName                  string Sets service name
+   * triggerId:                   string Sets event.trigger.id
+   * triggerName:                 string Sets event.trigger.name
+   * triggerUrl:                  string Sets event.trigger.url
    * serviceProject               string Sets service project
    * environment:                 string Sets all action environments to this value
    * packageInstallationVersion:  string Sets all "package-installation" actions package.version to this value
@@ -81,6 +110,15 @@ class BrokerIntention implements Serializable {
     }
     if (args.reason) {
       this.setReason(args.reason);
+    }
+    if (args.triggerId) {
+      this.setEventTriggerId(args.triggerId)
+    }
+    if (args.triggerName) {
+      this.setEventTriggerName(args.triggerName)
+    }
+    if (args.triggerUrl) {
+      this.setEventTriggerUrl(args.triggerUrl)
     }
     if (args.serviceName) {
       for (action in this.intention.actions) {
