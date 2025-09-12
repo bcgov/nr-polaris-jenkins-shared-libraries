@@ -4,6 +4,12 @@ class BrokerApi implements Serializable {
   static final String BROKER_BASE_URL = "https://broker.io.nrs.gov.bc.ca/v1/"
   static final String HEADER_BROKER_TOKEN = "X-Broker-Token"
 
+  def brokerJwt
+
+  BrokerApi(def brokerJwt) {
+    this.brokerJwt = brokerJwt
+  }
+
 // public getCollectionByIdArgs<T extends CollectionNames>(
 //     name: T,
 //     id: string,
@@ -15,12 +21,12 @@ class BrokerApi implements Serializable {
 //     };
 //   }
 
-  public getCollectionById(token, String collection, String id) {
+  public getCollectionById(String collection, String id) {
     def jsonSlurper = new groovy.json.JsonSlurperClassic()
     def request = new URL("${this.BROKER_BASE_URL}collection/${collection}/${id}").openConnection()
     request.setRequestMethod("GET")
     request.setRequestProperty("Content-Type", "application/json")
-    request.setRequestProperty("Authorization", "Bearer " + token)
+    request.setRequestProperty("Authorization", "Bearer " + brokerJwt)
     def requestCode = request.getResponseCode()
     if (this.isResponseSuccess(requestCode)) {
       return jsonSlurper.parseText(request.getInputStream().getText())
@@ -30,12 +36,12 @@ class BrokerApi implements Serializable {
     throw new IllegalStateException(errorMessage)
   }
 
-  public doUniqueKeyCheck(token, String collection, String key, String value) {
+  public doUniqueKeyCheck(String collection, String key, String value) {
     def jsonSlurper = new groovy.json.JsonSlurperClassic()
     def request = new URL("${this.BROKER_BASE_URL}collection/${collection}/unique/${key}/${value}").openConnection()
     request.setRequestMethod("POST")
     request.setRequestProperty("Content-Type", "application/json")
-    request.setRequestProperty("Authorization", "Bearer " + token)
+    request.setRequestProperty("Authorization", "Bearer " + brokerJwt)
     def requestCode = request.getResponseCode()
     if (this.isResponseSuccess(requestCode)) {
       return jsonSlurper.parseText(request.getInputStream().getText())
@@ -54,10 +60,10 @@ class BrokerApi implements Serializable {
    * ttl:        Number   The time to live (ttl) for the intention.
    *                      Long running processes may need to set this higher than the default.
    */
-  public boolean openIntention(Map args, String authToken, message) {
+  public boolean openIntention(Map args, message) {
     def jsonSlurper = new groovy.json.JsonSlurperClassic()
 
-    if (!authToken) {
+    if (!brokerJwt) {
       throw new IllegalArgumentException()
     }
 
@@ -74,7 +80,7 @@ class BrokerApi implements Serializable {
     post.setRequestMethod("POST")
     post.setDoOutput(true)
     post.setRequestProperty("Content-Type", "application/json")
-    post.setRequestProperty("Authorization", "Bearer " + authToken)
+    post.setRequestProperty("Authorization", "Bearer " + brokerJwt)
     post.getOutputStream().write(message.getBytes("UTF-8"))
 
     def postRC = post.getResponseCode()
@@ -85,8 +91,8 @@ class BrokerApi implements Serializable {
     def errorMessage = "Failed to open intention. Response code: $postRC Response body: $errorResponseBody"
     throw new IllegalStateException(errorMessage)
   }
-  def open(String authToken, message) {
-    this.open([:], authToken, message)
+  def open(String message) {
+    this.open([:], message)
   }
 
   public boolean actionLifecycleLog(String token, String type) {
