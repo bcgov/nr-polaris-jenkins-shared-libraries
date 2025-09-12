@@ -28,7 +28,7 @@ class JenkinsPipeline implements Serializable {
     }
   }
 
-  def retrieveFiles(gitRepo, gitBasicAuth, files, gitTag) {
+  def setupSparseCheckout(gitRepo, gitBasicAuth, files, gitTag) {
     def GIT_REPO = gitRepo.replaceFirst(/^https?:\/\//, '')
     def GIT_BRANCH = gitTag ?: 'main'
     def basicAuthParts = gitBasicAuth?.getPlainText().split(':')
