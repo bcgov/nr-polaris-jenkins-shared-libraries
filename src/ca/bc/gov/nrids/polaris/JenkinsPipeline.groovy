@@ -66,24 +66,22 @@ class JenkinsPipeline implements Serializable {
       def catalogs = ['catalog-info.yaml']
       setupSparseCheckout(gitRepo, gitBasicAuth, ['.jenkins', 'catalog-info.yaml'], gitTag)
 
-      script.dir('app') {
-        def catalog = script.readYaml(file: 'catalog-info.yaml')
-        if (catalog.kind == 'Location') {
-          echo "catalog-info.yaml is a Location file. Adding targets..."
-          def targets = catalog.spec.targets.collect { it.target }
-          script.sh """
-            git sparse-checkout add ${targets.join(' ')}
-            git sparse-checkout reapply
-            ls -al
-          """
-          catalogs += targets
-        } else if (catalog.kind == 'Component') {
-          script.echo "catalog-info.yaml is a Component file. No targets to follow."
-        } else {
-          script.error "catalog-info.yaml is neither a Location nor a Component file. Cannot proceed."
-        }
+      def catalog = script.readYaml(file: 'catalog-info.yaml')
+      if (catalog.kind == 'Location') {
+        echo "catalog-info.yaml is a Location file. Adding targets..."
+        def targets = catalog.spec.targets.collect { it.target }
+        script.sh """
+          git sparse-checkout add ${targets.join(' ')}
+          git sparse-checkout reapply
+          ls -al
+        """
+        catalogs += targets
+      } else if (catalog.kind == 'Component') {
+        script.echo "catalog-info.yaml is a Component file. No targets to follow."
+      } else {
+        script.error "catalog-info.yaml is neither a Location nor a Component file. Cannot proceed."
       }
-      return catalogs;
     }
+    return catalogs;
   }
 }
