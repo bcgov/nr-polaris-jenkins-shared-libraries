@@ -93,14 +93,16 @@ class JenkinsPipeline implements Serializable {
     """
   }
   def findServiceInCatalogs(catalogs, service) {
-    catalogs.each { catalogFile ->
-      def catalog = script.readYaml(file: catalogFile)
-      if (catalog.kind == 'Component' && catalog.metadata.name == service) {
-        return [
-          path: catalogFile,
-          dir: catalogFile.replaceFirst('/[^/]+$', ''),
-          catalog: catalog
-        ]
+    script.dir('app') {
+      catalogs.each { catalogFile ->
+        def catalog = script.readYaml(file: catalogFile)
+        if (catalog.kind == 'Component' && catalog.metadata.name == service) {
+          return [
+            path: catalogFile,
+            dir: catalogFile.replaceFirst('/?catalog-info.yaml$', ''),
+            catalog: catalog
+          ]
+        }
       }
     }
     return null
