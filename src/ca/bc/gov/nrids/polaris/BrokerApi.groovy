@@ -30,7 +30,7 @@ class BrokerApi implements Serializable {
     throw new IllegalStateException(errorMessage)
   }
 
-  public doUniqueKeyCheck(String token, String collection, String key, String value) {
+  public doUniqueKeyCheck(token, String collection, String key, String value) {
     def jsonSlurper = new groovy.json.JsonSlurperClassic()
     def get = new URL("${this.BROKER_BASE_URL}collection/${collection}/unique/${key}/${value}").openConnection()
     get.setRequestMethod("POST")
