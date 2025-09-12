@@ -94,7 +94,7 @@ class JenkinsPipeline implements Serializable {
   }
   def findServiceInCatalogs(catalogs, service) {
     script.dir('app') {
-      catalogs.each { catalogFile ->
+      for (catalogFile in catalogs) {
         def catalog = script.readYaml(file: catalogFile)
         script.echo catalog.metadata.name.toString()
         script.echo service.toString()
