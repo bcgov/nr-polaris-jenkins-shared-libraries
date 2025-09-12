@@ -97,7 +97,8 @@ class JenkinsPipeline implements Serializable {
       catalogs.each { catalogFile ->
         def catalog = script.readYaml(file: catalogFile)
         script.echo catalog.metadata.name.toString()
-        if (catalog.kind == 'Component' && catalog.metadata.name.toString() == service) {
+        script.echo service.toString()
+        if (catalog.kind == 'Component' && catalog.metadata.name.toString() == service.toString()) {
           return [
             path: catalogFile,
             dir: catalogFile.replaceFirst('/?catalog-info.yaml$', ''),
