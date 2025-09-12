@@ -79,7 +79,7 @@ class BrokerApi implements Serializable {
 
     def postRC = post.getResponseCode()
     if (this.isResponseSuccess(postRC)) {
-      return = jsonSlurper.parseText(post.getInputStream().getText())
+      return jsonSlurper.parseText(post.getInputStream().getText())
     }
     def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
     def errorMessage = "Failed to open intention. Response code: $postRC Response body: $errorResponseBody"
