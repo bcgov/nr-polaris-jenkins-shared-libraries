@@ -36,10 +36,10 @@ class JenkinsPipeline implements Serializable {
     script.dir('app') {
       def GIT_REPO = config.gitRepo.replaceFirst(/^https?:\/\//, '')
       def GIT_BRANCH = config.gitTag ?: 'main'
-      def basicAuthSplit = config.gitBasicAuth?.split(':')
+      def basicAuthParts = config.gitBasicAuth?.getPlainText().split(':')
       def varPasswordPairs = []
-      if (basicAuthSplit?.size() == 3) {
-        varPasswordPairs = [[var: 'GITHUB_TOKEN', password: basicAuthSplit[2]]]
+      if (basicAuthParts.length > 1) {
+        varPasswordPairs = [[var: 'GITHUB_TOKEN', password: basicAuthParts[1]]]
       }
       script.wrap([
         $class: 'MaskPasswordsBuildWrapper',
