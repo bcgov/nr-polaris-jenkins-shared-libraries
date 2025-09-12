@@ -17,30 +17,30 @@ class BrokerApi implements Serializable {
 
   public getCollectionById(String token, String collection, String id) {
     def jsonSlurper = new groovy.json.JsonSlurperClassic()
-    def get = new URL("${this.BROKER_BASE_URL}collection/${collection}/${id}").openConnection()
-    get.setRequestMethod("GET")
-    get.setRequestProperty("Content-Type", "application/json")
-    get.setRequestProperty(HEADER_BROKER_TOKEN, token)
-    def getRC = get.getResponseCode()
-    if (this.isResponseSuccess(getRC)) {
-      return jsonSlurper.parseText(get.getInputStream().getText())
+    def request = new URL("${this.BROKER_BASE_URL}collection/${collection}/${id}").openConnection()
+    request.setRequestMethod("GET")
+    request.setRequestProperty("Content-Type", "application/json")
+    request.setRequestProperty("Authorization", "Bearer " + token)
+    def requestCode = request.getResponseCode()
+    if (this.isResponseSuccess(requestCode)) {
+      return jsonSlurper.parseText(request.getInputStream().getText())
     }
-    def errorResponseBody = get.getErrorStream()?.getText() ?: "No error response body"
+    def errorResponseBody = request.getErrorStream()?.getText() ?: "No error response body"
     def errorMessage = "Failed to get service. Response code: $getRC Response body: $errorResponseBody"
     throw new IllegalStateException(errorMessage)
   }
 
   public doUniqueKeyCheck(token, String collection, String key, String value) {
     def jsonSlurper = new groovy.json.JsonSlurperClassic()
-    def get = new URL("${this.BROKER_BASE_URL}collection/${collection}/unique/${key}/${value}").openConnection()
-    get.setRequestMethod("POST")
-    get.setRequestProperty("Content-Type", "application/json")
-    get.setRequestProperty(HEADER_BROKER_TOKEN, token.getPlainText())
-    def getRC = get.getResponseCode()
-    if (this.isResponseSuccess(getRC)) {
-      return jsonSlurper.parseText(get.getInputStream().getText())
+    def request = new URL("${this.BROKER_BASE_URL}collection/${collection}/unique/${key}/${value}").openConnection()
+    request.setRequestMethod("POST")
+    request.setRequestProperty("Content-Type", "application/json")
+    request.setRequestProperty("Authorization", "Bearer " + token)
+    def requestCode = request.getResponseCode()
+    if (this.isResponseSuccess(requestCode)) {
+      return jsonSlurper.parseText(request.getInputStream().getText())
     }
-    def errorResponseBody = get.getErrorStream()?.getText() ?: "No error response body"
+    def errorResponseBody = request.getErrorStream()?.getText() ?: "No error response body"
     def errorMessage = "Failed to get service. Response code: $getRC Response body: $errorResponseBody"
     throw new IllegalStateException(errorMessage)
   }
