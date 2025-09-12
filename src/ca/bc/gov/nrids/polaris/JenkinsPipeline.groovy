@@ -100,7 +100,7 @@ class JenkinsPipeline implements Serializable {
       if (catalog.kind == 'Component' && catalog.metadata.name.toString() == service.toString()) {
         return [
           path: catalogFile,
-          dir: catalogFile.replaceFirst('/?catalog-info.yaml$', ''),
+          dir: catalogFile.replaceFirst('/?catalog-info.yaml$', '')  ?: '.',
           catalog: catalog
         ]
       }
