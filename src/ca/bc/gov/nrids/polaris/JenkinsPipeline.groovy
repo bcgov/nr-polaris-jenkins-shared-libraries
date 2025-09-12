@@ -63,24 +63,22 @@ class JenkinsPipeline implements Serializable {
   }
   def retrieveRepoCatalogs(gitRepo, gitBasicAuth, gitTag) {
     def catalogs = ['catalog-info.yaml']
-    script.dir('app') {
-      setupSparseCheckout(gitRepo, gitBasicAuth, ['.jenkins', 'catalog-info.yaml'], gitTag)
+    setupSparseCheckout(gitRepo, gitBasicAuth, ['.jenkins', 'catalog-info.yaml'], gitTag)
 
-      def catalog = script.readYaml(file: 'catalog-info.yaml')
-      if (catalog.kind == 'Location') {
-        echo "catalog-info.yaml is a Location file. Adding targets..."
-        def targets = catalog.spec.targets.collect { it.target }
-        script.sh """
-          git sparse-checkout add ${targets.join(' ')}
-          git sparse-checkout reapply
-          ls -al
-        """
-        catalogs += targets
-      } else if (catalog.kind == 'Component') {
-        script.echo "catalog-info.yaml is a Component file. No targets to follow."
-      } else {
-        script.error "catalog-info.yaml is neither a Location nor a Component file. Cannot proceed."
-      }
+    def catalog = script.readYaml(file: 'catalog-info.yaml')
+    if (catalog.kind == 'Location') {
+      echo "catalog-info.yaml is a Location file. Adding targets..."
+      def targets = catalog.spec.targets.collect { it.target }
+      script.sh """
+        git sparse-checkout add ${targets.join(' ')}
+        git sparse-checkout reapply
+        ls -al
+      """
+      catalogs += targets
+    } else if (catalog.kind == 'Component') {
+      script.echo "catalog-info.yaml is a Component file. No targets to follow."
+    } else {
+      script.error "catalog-info.yaml is neither a Location nor a Component file. Cannot proceed."
     }
     return catalogs;
   }
@@ -93,20 +91,18 @@ class JenkinsPipeline implements Serializable {
     """
   }
   def findServiceInCatalogs(catalogs, service) {
-    script.dir('app') {
-      for (catalogFile in catalogs) {
-        def catalog = script.readYaml(file: catalogFile)
-        script.echo catalog.metadata.name.toString()
-        script.echo service.toString()
+    for (catalogFile in catalogs) {
+      def catalog = script.readYaml(file: catalogFile)
+      script.echo catalog.metadata.name.toString()
+      script.echo service.toString()
 
-        script.echo "${catalog.metadata.name.toString() == service.toString()}"
-        if (catalog.kind == 'Component' && catalog.metadata.name.toString() == service.toString()) {
-          return [
-            path: catalogFile,
-            dir: catalogFile.replaceFirst('/?catalog-info.yaml$', ''),
-            catalog: catalog
-          ]
-        }
+      script.echo "${catalog.metadata.name.toString() == service.toString()}"
+      if (catalog.kind == 'Component' && catalog.metadata.name.toString() == service.toString()) {
+        return [
+          path: catalogFile,
+          dir: catalogFile.replaceFirst('/?catalog-info.yaml$', ''),
+          catalog: catalog
+        ]
       }
     }
     return null
