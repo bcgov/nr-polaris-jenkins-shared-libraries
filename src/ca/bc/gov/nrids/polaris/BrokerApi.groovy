@@ -15,7 +15,7 @@ class BrokerApi implements Serializable {
 //     };
 //   }
 
-  public getCollectionById(String token, String collection, String id) {
+  public getCollectionById(token, String collection, String id) {
     def jsonSlurper = new groovy.json.JsonSlurperClassic()
     def request = new URL("${this.BROKER_BASE_URL}collection/${collection}/${id}").openConnection()
     request.setRequestMethod("GET")
