@@ -35,7 +35,7 @@ class BrokerApi implements Serializable {
     def get = new URL("${this.BROKER_BASE_URL}collection/${collection}/unique/${key}/${value}").openConnection()
     get.setRequestMethod("POST")
     get.setRequestProperty("Content-Type", "application/json")
-    get.setRequestProperty(HEADER_BROKER_TOKEN, token)
+    get.setRequestProperty(HEADER_BROKER_TOKEN, token.getPlainText())
     def getRC = get.getResponseCode()
     if (this.isResponseSuccess(getRC)) {
       return jsonSlurper.parseText(get.getInputStream().getText())
