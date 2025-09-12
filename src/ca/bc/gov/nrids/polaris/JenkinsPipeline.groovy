@@ -47,7 +47,7 @@ class JenkinsPipeline implements Serializable {
       ]) {
         sh """
             git config --global advice.detachedHead false
-            git clone -q --no-checkout https://${config.gitBasicAuth ? config.gitBasicAuth + '@' : ''}${GIT_REPO} .
+            git clone -q --no-checkout https://${basicAuthParts.length > 1 ? config.gitBasicAuth.getPlainText() + '@' : ''}${GIT_REPO} .
             git sparse-checkout set .jenkins catalog-info.yaml
             git checkout ${GIT_BRANCH}
             ls -la
