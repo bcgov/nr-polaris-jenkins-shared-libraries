@@ -46,6 +46,8 @@ class JenkinsPipeline implements Serializable {
         varPasswordPairs: [[var: 'GITHUB_TOKEN', password: script.env.GITHUB_TOKEN]]
       ]) {
         script.sh """
+            ls -la
+            pwd
             git config --global advice.detachedHead false
             git clone -q --no-checkout https://${basicAuthParts.length > 1 ? config.gitBasicAuth.getPlainText() + '@' : ''}${GIT_REPO} .
             git sparse-checkout init --cone
