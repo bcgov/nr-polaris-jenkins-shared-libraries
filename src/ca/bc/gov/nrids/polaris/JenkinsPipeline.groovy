@@ -62,8 +62,8 @@ class JenkinsPipeline implements Serializable {
     )
   }
   def retrieveRepoCatalogs(gitRepo, gitBasicAuth, gitTag) {
+    def catalogs = ['catalog-info.yaml']
     script.dir('app') {
-      def catalogs = ['catalog-info.yaml']
       setupSparseCheckout(gitRepo, gitBasicAuth, ['.jenkins', 'catalog-info.yaml'], gitTag)
 
       def catalog = script.readYaml(file: 'catalog-info.yaml')
@@ -83,5 +83,26 @@ class JenkinsPipeline implements Serializable {
       }
     }
     return catalogs;
+  }
+  def retrieveServicePlaybooks(catalogInfo) {
+    def playbookPath = catalogInfo.catalog.metadata.annotations['playbook.io.nrs.gov.bc.ca/playbookPath']
+    script.sh """
+      git sparse-checkout add ${catalogInfo.dir}/${playbookPath}
+      git sparse-checkout reapply
+      ls -al ${catalogInfo.dir}/${playbookPath}
+    """
+  }
+  def findServiceInCatalogs(catalogs, service) {
+    catalogs.each { catalogFile ->
+      def catalog = script.readYaml(file: catalogFile)
+      if (catalog.kind == 'Component' && catalog.metadata.name == service) {
+        return [
+          path: catalogFile,
+          dir: catalogFile.replaceFirst('/[^/]+$', ''),
+          catalog: catalog
+        ]
+      }
+    }
+    return null
   }
 }
