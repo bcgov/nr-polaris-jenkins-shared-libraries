@@ -82,12 +82,16 @@ class JenkinsPipeline implements Serializable {
     }
     return catalogs;
   }
+  def getPlaybookPath(catalogInfo) {
+    def playbookPath = catalogInfo.catalog.metadata.annotations['playbook.io.nrs.gov.bc.ca/playbookPath'] ?: 'playbooks'
+    return "${catalogInfo.dir}/${playbookPath}"
+  }
   def retrieveServicePlaybooks(catalogInfo) {
-    def playbookPath = catalogInfo.catalog.metadata.annotations['playbook.io.nrs.gov.bc.ca/playbookPath']
+    def playbookPath = getPlaybookPath(catalogInfo)
     script.sh """
-      git sparse-checkout add ${catalogInfo.dir}/${playbookPath}
+      git sparse-checkout add ${playbookPath}
       git sparse-checkout reapply
-      ls -al ${catalogInfo.dir}/${playbookPath}
+      ls -al ${playbookPath}
     """
   }
   def findServiceInCatalogs(catalogs, service) {
