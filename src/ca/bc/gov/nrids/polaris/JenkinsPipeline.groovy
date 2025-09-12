@@ -28,34 +28,62 @@ class JenkinsPipeline implements Serializable {
     }
   }
 
+  def retrieveFiles(gitRepo, gitBasicAuth, files, gitTag) {
+    def GIT_REPO = gitRepo.replaceFirst(/^https?:\/\//, '')
+    def GIT_BRANCH = gitTag ?: 'main'
+    def basicAuthParts = gitBasicAuth?.getPlainText().split(':')
+    def varPasswordPairs = []
+    if (basicAuthParts.length > 1) {
+      varPasswordPairs = [[var: 'GITHUB_TOKEN', password: basicAuthParts[1]]]
+    }
+    script.wrap([
+      $class: 'MaskPasswordsBuildWrapper',
+      varPasswordPairs: [[var: 'GITHUB_TOKEN', password: script.env.GITHUB_TOKEN]]
+    ]) {
+      script.sh """
+          git config --global advice.detachedHead false
+          git clone -q --no-checkout https://${basicAuthParts.length > 1 ? gitBasicAuth.getPlainText() + '@' : ''}${GIT_REPO} .
+          git sparse-checkout init --cone
+          git sparse-checkout set ${files.join(' ')}
+          git checkout ${GIT_BRANCH}
+          ls -la
+      """
+    }
+  }
 // params.gitRepo
 // params.gitBasicAuth
 // params.gitTag
 
   def retrieveRepoRoot(Map config = [:]) {
+    this.retrieveRepoRoot(
+      config.gitRepo,
+      config.gitBasicAuth,
+      config.gitTag
+    )
+  }
+  def retrieveRepoCatalogs(gitRepo, gitBasicAuth, gitTag) {
     script.dir('app') {
-      def GIT_REPO = config.gitRepo.replaceFirst(/^https?:\/\//, '')
-      def GIT_BRANCH = config.gitTag ?: 'main'
-      def basicAuthParts = config.gitBasicAuth?.getPlainText().split(':')
-      def varPasswordPairs = []
-      if (basicAuthParts.length > 1) {
-        varPasswordPairs = [[var: 'GITHUB_TOKEN', password: basicAuthParts[1]]]
+      def catalogs = ['catalog-info.yaml']
+      setupSparseCheckout(gitRepo, gitBasicAuth, ['.jenkins', 'catalog-info.yaml'], gitTag)
+
+      script.dir('app') {
+        def catalog = script.readYaml(file: 'catalog-info.yaml')
+        if (catalog.kind == 'Location') {
+          echo "catalog-info.yaml is a Location file. Adding targets..."
+          def targets = catalog.spec.targets.collect { it.target }
+          script.sh """
+            git sparse-checkout add ${targets.join(' ')}
+            git sparse-checkout reapply
+            ls -al
+          """
+          catalogs += targets
+        } else if (catalog.kind == 'Component') {
+          script.echo "catalog-info.yaml is a Component file. No targets to follow."
+        } else {
+          script.error "catalog-info.yaml is neither a Location nor a Component file. Cannot proceed."
+        }
       }
-      script.wrap([
-        $class: 'MaskPasswordsBuildWrapper',
-        varPasswordPairs: [[var: 'GITHUB_TOKEN', password: script.env.GITHUB_TOKEN]]
-      ]) {
-        script.sh """
-            ls -la
-            pwd
-            git config --global advice.detachedHead false
-            git clone -q --no-checkout https://${basicAuthParts.length > 1 ? config.gitBasicAuth.getPlainText() + '@' : ''}${GIT_REPO} .
-            git sparse-checkout init --cone
-            git sparse-checkout set .jenkins catalog-info.yaml
-            git checkout ${GIT_BRANCH}
-            ls -la
-        """
-      }
+      return catalogs;
     }
   }
 }
