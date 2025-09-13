@@ -177,39 +177,11 @@ class BrokerIntention implements Serializable {
    *                      Long running processes may need to set this higher than the default.
    */
   public boolean open(Map args, String authToken) {
-    def jsonSlurper = new groovy.json.JsonSlurperClassic()
-
-    if (!authToken) {
-      throw new IllegalArgumentException()
-    }
-
-    // POST open
-    def params = [:]
-    if (args.ttl) {
-      params["ttl"] = args.ttl
-    }
-    if (args.quickstart) {
-      params["quickstart"] = "true"
-    }
-    def paramStr = params.collect({ it }).join('&')
-    def post = new URL(this.BROKER_BASE_URL + "intention/open?" + paramStr).openConnection()
     def message = groovy.json.JsonOutput.toJson(intention)
-    post.setRequestMethod("POST")
-    post.setDoOutput(true)
-    post.setRequestProperty("Content-Type", "application/json")
-    post.setRequestProperty("Authorization", "Bearer " + authToken)
-    post.getOutputStream().write(message.getBytes("UTF-8"))
-    def postRC = post.getResponseCode()
-    if (this.isResponseSuccess(postRC)) {
-      this.openResponse = jsonSlurper.parseText(post.getInputStream().getText())
-      return true
-    }
-    def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
-    def errorMessage = "Failed to open intention. Response code: $postRC Response body: $errorResponseBody"
-    throw new IllegalStateException(errorMessage)
+    this.brokerApi.openIntention(message)
   }
-  def open(String authToken) {
-    this.open([:], authToken)
+  def open() {
+    this.open([:])
   }
 
   /**
@@ -224,7 +196,7 @@ class BrokerIntention implements Serializable {
     if (!action || !this.openResponse.actions[action]) {
       throw new IllegalArgumentException()
     }
-    this.actionLifecycleLog(this.openResponse.actions[action].token, "start")
+    this.brokerApi.actionLifecycleLog(this.openResponse.actions[action].token, "start")
   }
 
   /**
@@ -239,15 +211,7 @@ class BrokerIntention implements Serializable {
     if (!action || !this.openResponse.actions[action]) {
       throw new IllegalArgumentException()
     }
-    this.actionLifecycleLog(this.openResponse.actions[action].token, "end")
-  }
-
-  public boolean actionLifecycleLog(String token, String type) {
-    def post = new URL(this.BROKER_BASE_URL + "intention/action/" + type).openConnection()
-    post.setRequestMethod("POST")
-    post.setRequestProperty("Content-Type", "application/json")
-    post.setRequestProperty(HEADER_BROKER_TOKEN, token)
-    return this.isResponseSuccess(post.getResponseCode())
+    this.brokerApi.actionLifecycleLog(this.openResponse.actions[action].token, "end")
   }
 
   public boolean registerActionArtifact(String action, String message) {
@@ -257,14 +221,7 @@ class BrokerIntention implements Serializable {
     if (!action || !this.openResponse.actions[action]) {
       throw new IllegalArgumentException()
     }
-
-    def post = new URL(this.BROKER_BASE_URL + "intention/action/artifact").openConnection()
-    post.setRequestMethod("POST")
-    post.setDoOutput(true)
-    post.setRequestProperty("Content-Type", "application/json")
-    post.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
-    post.getOutputStream().write(message.getBytes("UTF-8"))
-    return this.isResponseSuccess(post.getResponseCode())
+    return this.brokerApi.registerActionArtifact(action, message)
   }
 
   public boolean patchAction(String action, String message) {
@@ -274,21 +231,7 @@ class BrokerIntention implements Serializable {
     if (!action || !this.openResponse.actions[action]) {
       throw new IllegalArgumentException()
     }
-
-    def post = new URL(this.BROKER_BASE_URL + "intention/action/patch").openConnection()
-    post.setRequestMethod("POST")
-    post.setDoOutput(true)
-    post.setRequestProperty("Content-Type", "application/json")
-    post.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
-    post.getOutputStream().write(message.getBytes("UTF-8"))
-    def postRC = post.getResponseCode()
-    if (!this.isResponseSuccess(postRC)) {
-      def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
-      def errorMessage = "Failed to patch. Response code: $postRC Response body: $errorResponseBody"
-
-      throw new IllegalStateException(errorMessage)
-    }
-    return true
+    return this.brokerApi.patchAction(action, message)
   }
 
   /**
@@ -301,16 +244,7 @@ class BrokerIntention implements Serializable {
     if (!this.openResponse) {
       throw new IllegalStateException("Intention was never opened")
     }
-    // POST close
-    def jsonSlurper = new groovy.json.JsonSlurperClassic()
-    def post = new URL(
-      this.BROKER_BASE_URL + "intention/close?outcome=" +
-      (successArg ? "success": "failure")).openConnection()
-    post.setRequestMethod("POST")
-    post.setRequestProperty("Content-Type", "application/json")
-    post.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.token)
-    def resp = jsonSlurper.parseText(post.getInputStream().getText())
-    return resp.audit
+    return this.brokerApi.close(this.openResponse.token, successArg)
   }
 
   /**
@@ -336,22 +270,7 @@ class BrokerIntention implements Serializable {
     if (!actionToken) {
       throw new IllegalArgumentException()
     }
-    def jsonSlurper = new groovy.json.JsonSlurperClassic()
-    def post = new URL(this.BROKER_BASE_URL + "provision/approle/secret-id").openConnection()
-    post.setRequestMethod("POST")
-    post.setRequestProperty("Content-Type", "application/json")
-    if (roleId) {
-      post.setRequestProperty("X-Vault-Role-Id", (String) roleId)
-    }
-    post.setRequestProperty(HEADER_BROKER_TOKEN, (String) actionToken)
-    def postRC = post.getResponseCode()
-    if (!this.isResponseSuccess(postRC)) {
-      def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
-      def errorMessage = "Failed to provision secret id. Response code: $postRC Response body: $errorResponseBody"
-      throw new IllegalStateException(errorMessage)
-    }
-    def wrappedTokenResponse = jsonSlurper.parseText(post.getInputStream().getText())
-    return wrappedTokenResponse.wrap_info.token
+    return this.brokerApi.provisionSecretId(actionToken, roleId)
   }
 
   /**
@@ -376,32 +295,7 @@ class BrokerIntention implements Serializable {
     if (!actionToken) {
       throw new IllegalArgumentException()
     }
-    def jsonSlurper = new groovy.json.JsonSlurperClassic()
-    def post = new URL(this.BROKER_BASE_URL + "provision/token/self").openConnection()
-    post.setRequestMethod("POST")
-    post.setRequestProperty("Content-Type", "application/json")
-    if (roleId) {
-      post.setRequestProperty("X-Vault-Role-Id", (String) roleId)
-    }
-    post.setRequestProperty(HEADER_BROKER_TOKEN, (String) actionToken)
-    def postRC = post.getResponseCode()
-    if (!this.isResponseSuccess(postRC)) {
-      def errorResponseBody = post.getErrorStream()?.getText() ?: "No error response body"
-      def errorMessage = "Failed to provision token. Response code: $postRC Response body: $errorResponseBody"
-
-      throw new IllegalStateException(errorMessage)
-    }
-    def wrappedTokenResponse = jsonSlurper.parseText(post.getInputStream().getText())
-
-    if (!unwrapToken) {
-      return wrappedTokenResponse.wrap_info.token
-    }
-
-    return Vault.unwrapToken(wrappedTokenResponse.wrap_info.token)
-  }
-
-  private boolean isResponseSuccess(code) {
-    return code >= 200 && code <= 299
+    return this.brokerApi.provisionToken(actionToken, roleId, unwrapToken)
   }
 
   private void updatePackageForAction(String actionName, String key, String value) {
