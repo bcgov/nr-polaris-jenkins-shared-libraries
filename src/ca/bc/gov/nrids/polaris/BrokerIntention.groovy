@@ -3,11 +3,13 @@ package ca.bc.gov.nrids.polaris
 class BrokerIntention implements Serializable {
   Object intention
   Object openResponse
+  BrokerApi brokerApi
   static final String BROKER_BASE_URL = "https://broker.io.nrs.gov.bc.ca/v1/"
   static final String HEADER_BROKER_TOKEN = "X-Broker-Token"
 
-  BrokerIntention(Object intention) {
+  BrokerIntention(String brokerJwt, Object intention) {
     this.intention = intention
+    this.brokerApi = new BrokerApi(brokerJwt)
   }
 
   /**
