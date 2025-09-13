@@ -46,7 +46,6 @@ class JenkinsPipeline implements Serializable {
           git sparse-checkout init --cone
           git sparse-checkout set ${files.join(' ')}
           git checkout ${GIT_BRANCH}
-          ls -la
       """
     }
   }
@@ -72,7 +71,6 @@ class JenkinsPipeline implements Serializable {
       script.sh """
         git sparse-checkout add ${targets.join(' ')}
         git sparse-checkout reapply
-        ls -al
       """
       catalogs += targets
     } else if (catalog.kind == 'Component') {
@@ -91,7 +89,6 @@ class JenkinsPipeline implements Serializable {
     script.sh """
       git sparse-checkout add ${playbookPath}
       git sparse-checkout reapply
-      ls -al ${playbookPath}
     """
   }
   def findServiceInCatalogs(catalogs, service) {
