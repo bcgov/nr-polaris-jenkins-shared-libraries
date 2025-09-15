@@ -91,7 +91,7 @@ class BrokerApi implements Serializable {
     def errorMessage = "Failed to open intention. Response code: $responseCode Response body: $errorResponseBody"
     throw new IllegalStateException(errorMessage)
   }
-  def open(String message) {
+  def openIntention(String message) {
     this.open([:], message)
   }
 
