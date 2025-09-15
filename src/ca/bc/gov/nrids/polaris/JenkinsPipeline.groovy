@@ -30,7 +30,7 @@ class JenkinsPipeline implements Serializable {
   def retrieveAnsibleCollection(podman, url, path) {
     podman.run("willhallonline/ansible:2.16-alpine-3.21",
         options: "-v \$(pwd):/ansible",
-        command: '/bin/sh -c "git config --global advice.detachedHead false && ansible-galaxy collection install ${url} -p ${path}"')
+        command: "/bin/sh -c \"git config --global advice.detachedHead false && ansible-galaxy collection install ${url} -p ${path}\"")
   }
 
   def setupSparseCheckout(gitRepo, gitBasicAuth, files, gitTag) {
