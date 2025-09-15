@@ -5,6 +5,7 @@ class JenkinsPipeline implements Serializable {
   def script
 
   JenkinsPipeline(def script) {
+    // Store the script object to call functions implicitly used in the Jenkinsfile
     this.script = script
   }
 
@@ -60,6 +61,7 @@ class JenkinsPipeline implements Serializable {
       config.gitTag
     )
   }
+
   def retrieveRepoCatalogs(gitRepo, gitBasicAuth, gitTag) {
     def catalogs = ['catalog-info.yaml']
     setupSparseCheckout(gitRepo, gitBasicAuth, ['.jenkins', 'catalog-info.yaml'], gitTag)
@@ -78,12 +80,15 @@ class JenkinsPipeline implements Serializable {
     } else {
       script.error "catalog-info.yaml is neither a Location nor a Component file. Cannot proceed."
     }
+    script.echo "Catalog files found: ${catalogs}"
     return catalogs;
   }
+
   def getPlaybookPath(catalogInfo) {
     def playbookPath = catalogInfo.catalog.metadata.annotations['playbook.io.nrs.gov.bc.ca/playbookPath'] ?: 'playbooks'
     return "${catalogInfo.dir}/${playbookPath}"
   }
+
   def retrieveServicePlaybooks(catalogInfo) {
     def playbookPath = getPlaybookPath(catalogInfo)
     script.sh """
@@ -91,13 +96,11 @@ class JenkinsPipeline implements Serializable {
       git sparse-checkout reapply
     """
   }
+
   def findServiceInCatalogs(catalogs, service) {
     for (catalogFile in catalogs) {
       def catalog = script.readYaml(file: catalogFile)
-      script.echo catalog.metadata.name.toString()
-      script.echo service.toString()
 
-      script.echo "${catalog.metadata.name.toString() == service.toString()}"
       if (catalog.kind == 'Component' && catalog.metadata.name.toString() == service.toString()) {
         return [
           path: catalogFile,
