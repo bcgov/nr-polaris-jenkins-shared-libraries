@@ -15,9 +15,6 @@ class JenkinsPipeline implements Serializable {
         $class: 'GitSCM',
         branches: [[name: config.branch ?: 'release/1.0.0']],
         doGenerateSubmoduleConfigurations: false,
-        extensions: [
-          [$class: 'RelativeTargetDirectory', relativeTargetDir: 'infra']
-        ],
         submoduleCfg: [],
         userRemoteConfigs: [
           [
@@ -102,6 +99,7 @@ class JenkinsPipeline implements Serializable {
       git sparse-checkout add ${playbookPath}
       git sparse-checkout reapply
     """
+    return playbookPath
   }
 
   def findServiceInCatalogs(catalogs, service) {
