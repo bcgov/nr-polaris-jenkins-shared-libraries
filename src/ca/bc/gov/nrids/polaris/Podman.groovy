@@ -136,7 +136,8 @@ class Podman implements Serializable {
     def toEnvOptions = {
       it.collect { "-e ${it.key}=${it.value.replaceAll(' ', '\\\\ ')}" } join " "
     }
-    def envOpts = this.script.env && !args.skipPipelineEnv ? toEnvOptions(this.script.env) : ''
+    // def envOpts = this.script.env && !args.skipPipelineEnv ? toEnvOptions(this.script.env) : ''
+    def envOpts = ""
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "podman run --rm " +
       (args.authfile ?  "--authfile=${args.authfile} " : "") +
