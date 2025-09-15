@@ -10,7 +10,7 @@ class JenkinsPipeline implements Serializable {
   }
 
   def retrieveAnsibleInventory(Map config = [:]) {
-    script.stage('Checkout INFRA dev-all-in-one') {
+    // script.stage('Checkout INFRA dev-all-in-one') {
       script.checkout([
         $class: 'GitSCM',
         branches: [[name: config.branch ?: 'release/1.0.0']],
@@ -26,7 +26,7 @@ class JenkinsPipeline implements Serializable {
           ]
         ]
       ])
-    }
+    // }
   }
 
 
