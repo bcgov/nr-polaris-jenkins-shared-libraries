@@ -167,6 +167,12 @@ class BrokerIntention implements Serializable {
     return this
   }
 
+  public void filterActionsByIds(ids) {
+    // ensure ids is a Set for faster lookup
+    def idSet = ids as Set
+    intention.actions = intention.actions.findAll { obj -> idSet.contains(obj.id) }
+}
+
   /**
    * Open the intention
    * - Positional parameters
@@ -178,7 +184,7 @@ class BrokerIntention implements Serializable {
    */
   public boolean open(Map args, String authToken) {
     def message = groovy.json.JsonOutput.toJson(intention)
-    this.brokerApi.openIntention(message)
+    this.openResponse = this.brokerApi.openIntention(message)
   }
   def open() {
     this.open([:])

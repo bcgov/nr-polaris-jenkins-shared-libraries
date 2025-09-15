@@ -8,15 +8,17 @@ class Podman implements Serializable {
   /** Podman agent label for agent with no web access */
   static final String AGENT_LABEL_DATA = "podman-data"
 
-  def steps
-  def env
+  def script
+  String authfile
   String imagePrefix
-  String authfile = ".docker.config.json"
 
-  Podman(steps, env = null, String imagePrefix = "artifacts.developer.gov.bc.ca/docker-remote") {
-    this.steps = steps
+  Podman(
+    script,
+    String authfile = ".docker.config.json",
+    String imagePrefix = "artifacts.developer.gov.bc.ca/docker-remote") {
+    this.script = script
+    this.authfile = authfile
     this.imagePrefix = imagePrefix
-    this.env = env ? env.getEnvironment() : null
   }
 
   /**
@@ -31,7 +33,7 @@ class Podman implements Serializable {
   def build(Map args, String context) {
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "podman build --authfile=${args.authfile ?: authfile} ${args.options ?: ''} --no-cache ${args.tag ? '--tag ' + args.tag : ''} ${context}";
-    steps.sh shellCmd
+    script.sh shellCmd
   }
   def build(Map args) {
     this.build(args, '')
@@ -65,7 +67,7 @@ class Podman implements Serializable {
     }
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "set +x ; podman login --authfile=${authfile} ${args.options ?: ''} ${args.registry ?: imagePrefix}";
-    steps.sh shellCmd
+    script.sh shellCmd
   }
 
   /**
@@ -78,7 +80,7 @@ class Podman implements Serializable {
   def logout(Map args) {
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "podman logout --authfile=${args.authfile ?: authfile} ${args.options ?: ''} --all";
-    steps.sh shellCmd
+    script.sh shellCmd
   }
 
   /**
@@ -94,7 +96,7 @@ class Podman implements Serializable {
   def pull(Map args, String imageId) {
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "podman pull --authfile=${args.authfile ?: authfile} ${args.options ?: ''} ${renderImageId(args, imageId)}";
-    steps.sh shellCmd
+    script.sh shellCmd
   }
   def pull(String imageId) {
     this.pull([:], imageId)
@@ -114,7 +116,7 @@ class Podman implements Serializable {
   def push(Map args, String imageId) {
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "podman push --authfile=${args.authfile ?: authfile} ${imageId} ${renderImageId(args, imageId)}";
-    steps.sh shellCmd
+    script.sh shellCmd
   }
 
   /**
@@ -140,9 +142,9 @@ class Podman implements Serializable {
       (args.authfile ?  "--authfile=${args.authfile} " : "") +
       "${args.options ?: ''} ${envOpts} ${renderImageId(args, imageId)} ${args.command ?: ''}"
     if (args.returnStdout)
-      return steps.sh(script: shellCmd, returnStdout: true)
+      return script.sh(script: shellCmd, returnStdout: true)
     else {
-      steps.sh shellCmd
+      script.sh shellCmd
     }
   }
   def run(String imageId) {
@@ -153,7 +155,7 @@ class Podman implements Serializable {
    * Podman version command
    */
   def version(Map args) {
-    steps.sh "podman version"
+    script.sh "podman version"
   }
   def version() {
     this.version([:])
