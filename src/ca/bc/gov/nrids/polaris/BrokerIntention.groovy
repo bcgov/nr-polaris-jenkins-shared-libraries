@@ -171,7 +171,7 @@ class BrokerIntention implements Serializable {
     // ensure ids is a Set for faster lookup
     def idSet = ids as Set
     intention.actions = intention.actions.findAll { obj -> idSet.contains(obj.id) }
-}
+  }
 
   /**
    * Open the intention
