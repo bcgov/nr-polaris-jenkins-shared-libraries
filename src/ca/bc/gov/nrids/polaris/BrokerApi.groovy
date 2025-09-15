@@ -92,7 +92,7 @@ class BrokerApi implements Serializable {
     throw new IllegalStateException(errorMessage)
   }
   def openIntention(message) {
-    this.open([:], message)
+    this.openIntention([:], message)
   }
 
   public boolean actionLifecycleLog(String token, String type) {
