@@ -54,7 +54,7 @@ class BrokerApi implements Serializable {
   /**
    * Open the intention
    * - Positional parameters
-   * authToken   String   The JWT to send to authenticate this request
+   * message   String   The intention message to send
    * - Named parameters
    * quickstart: boolean  If an intention has a single action, setting this true will start the action.
    * ttl:        Number   The time to live (ttl) for the intention.
@@ -91,7 +91,7 @@ class BrokerApi implements Serializable {
     def errorMessage = "Failed to open intention. Response code: $responseCode Response body: $errorResponseBody"
     throw new IllegalStateException(errorMessage)
   }
-  def openIntention(String message) {
+  def openIntention(message) {
     this.open([:], message)
   }
 
