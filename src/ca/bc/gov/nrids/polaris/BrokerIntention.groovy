@@ -17,9 +17,9 @@ class BrokerIntention implements Serializable {
    * - Positional parameters
    * path   String  The path to the file to read
    */
-  static BrokerIntention fromFile(String path) {
+  static BrokerIntention fromFile(String brokerJwt, String path) {
     def jsonSlurper = new groovy.json.JsonSlurperClassic()
-    return new BrokerIntention(jsonSlurper.parseText(new File(path).text))
+    return new BrokerIntention(brokerJwt, jsonSlurper.parseText(new File(path).text))
   }
 
   // Convenience getter/setter for user id & name, event url and event provider
