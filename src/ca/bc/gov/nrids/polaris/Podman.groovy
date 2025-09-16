@@ -9,15 +9,18 @@ class Podman implements Serializable {
   static final String AGENT_LABEL_DATA = "podman-data"
 
   def script
+  def env
   String authfile
   String imagePrefix
 
   Podman(
     script,
+    env = null,
     String authfile = ".docker.config.json",
     String imagePrefix = "artifacts.developer.gov.bc.ca/docker-remote") {
     this.script = script
     this.authfile = authfile
+    this.env = env ? env.getEnvironment() : null
     this.imagePrefix = imagePrefix
   }
 
@@ -142,8 +145,7 @@ class Podman implements Serializable {
     def toEnvOptions = {
       it.collect { "-e ${it.key}=${it.value.replaceAll(' ', '\\\\ ')}" } join " "
     }
-    // def envOpts = this.script.env && !args.skipPipelineEnv ? toEnvOptions(this.script.env) : ''
-    def envOpts = ""
+    def envOpts = this.env && !args.skipPipelineEnv ? toEnvOptions(this.env) : ''
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "podman run --rm " +
       (args.authfile ?  "--authfile=${args.authfile} " : "") +
