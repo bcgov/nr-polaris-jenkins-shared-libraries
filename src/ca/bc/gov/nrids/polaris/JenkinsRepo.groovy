@@ -31,9 +31,8 @@ class JenkinsRepo implements Serializable {
     }
   }
 
-  def retrieveRepoCatalogs(gitRepo, gitBasicAuth, gitTag) {
+  def retrieveRepoCatalogs() {
     def catalogs = ['catalog-info.yaml']
-    // setupSparseCheckout(gitRepo, gitBasicAuth, ['.jenkins', 'catalog-info.yaml'], gitTag)
 
     def catalog = script.readYaml(file: 'catalog-info.yaml')
     if (catalog.kind == 'Location') {
