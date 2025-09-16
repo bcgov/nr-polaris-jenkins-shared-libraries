@@ -69,6 +69,9 @@ class Podman implements Serializable {
       "set +x ; podman login --authfile=${authfile} ${args.options ?: ''} ${args.registry ?: imagePrefix}";
     script.sh shellCmd
   }
+  def login() {
+    this.login([:])
+  }
 
   /**
    * Podman logout command
@@ -81,6 +84,9 @@ class Podman implements Serializable {
     def shellCmd = (args.httpProxy ? "HTTP_PROXY=${args.httpProxy} " : "") +
       "podman logout --authfile=${args.authfile ?: authfile} ${args.options ?: ''} --all";
     script.sh shellCmd
+  }
+  def logout() {
+    this.logout([:])
   }
 
   /**
