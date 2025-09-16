@@ -32,10 +32,12 @@ class JenkinsPipeline implements Serializable {
         command: "/bin/sh -c \"git config --global advice.detachedHead false && ansible-galaxy collection install ${url} -p ${path}\"")
   }
 
-  def loginAndPreparePodman(intention, podman, loginAction = "login") {
+  def loginAndPreparePodman(intention, podman, env, loginAction = "login") {
     intention.startAction(loginAction)
 
-    def vaultToken = intention.provisionToken(loginAction, script.credentials('knox-jenkins-jenkins-apps-prod-role-id'))
+    def vaultToken = intention.provisionToken(
+      loginAction,
+      script.credentials('knox-jenkins-jenkins-apps-prod-role-id'))
     def vault = new Vault(vaultToken)
     vault.readToObject("apps/data/prod/jenkins/jenkins-apps/artifactory", env)
     vault.readToObject("apps/data/prod/jenkins/jenkins-apps/cdua", env)
