@@ -9,6 +9,12 @@ class JenkinsPipeline implements Serializable {
     this.script = script
   }
 
+  /**
+   * Print a banner with job information and links to documentation
+   * - Positional parameters
+   * env             map     The environment map (usually 'env' in the Jenkinsfile)
+   * pipelineFolder  string  The folder name of the pipeline in the polaris-pipelines repository
+   */
   def banner(env, pipelineFolder) {
     script.echo """
     ====================================================
@@ -34,6 +40,11 @@ class JenkinsPipeline implements Serializable {
     """.replaceAll("(?m)^[ \t]+", "")
   }
 
+  /**
+   * Retrieve the Ansible inventory from the dev-all-in-one repository
+   * - Named parameters
+   * branch   string  The git branch to checkout (default: 'release/1.0.0')
+   */
   def retrieveAnsibleInventory(Map config = [:]) {
     // script.stage('Checkout INFRA dev-all-in-one') {
       script.checkout([
@@ -51,12 +62,27 @@ class JenkinsPipeline implements Serializable {
     // }
   }
 
+  /**
+   * Retrieve an Ansible collection from a git repository URL
+   * - Positional parameters
+   * podman   object  A Podman object to run the container
+   * url      string  The git repository URL of the Ansible collection
+   * path     string  The path to install the collection to
+   */
   def retrieveAnsibleCollection(podman, url, path) {
     podman.run("willhallonline/ansible:2.16-alpine-3.21",
         options: "-v \$(pwd):/ansible",
         command: "/bin/sh -c \"git config --global advice.detachedHead false && ansible-galaxy collection install ${url} -p ${path}\"")
   }
 
+  /**
+   * Login to Vault using the intention and prepare Podman by logging into the container registry
+   * - Positional parameters
+   * intention     object  An Intention object to use for logging into Vault
+   * podman        object  A Podman object to run the container
+   * env           map     A map to populate with environment variables read from Vault
+   * loginAction   string  The action name to use for logging into Vault (default: "login")
+   */
   def loginAndPreparePodman(intention, podman, env, loginAction = "login") {
     intention.startAction(loginAction)
 

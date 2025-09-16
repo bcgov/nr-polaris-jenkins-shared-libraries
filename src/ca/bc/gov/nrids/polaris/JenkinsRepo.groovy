@@ -9,6 +9,14 @@ class JenkinsRepo implements Serializable {
     this.script = script
   }
 
+  /**
+   * Setup git sparse checkout for repository
+   * - Positional parameters
+   * gitRepo        string  The git repository url
+   * gitBasicAuth   object  The Jenkins credentials object for basic auth (username:token)
+   * gitTag         string  The git tag or branch to checkout
+   * files          list    List of files or directories to include in sparse checkout
+   */
   def setupSparseCheckout(gitRepo, gitBasicAuth, gitTag, files = ['.jenkins', 'catalog-info.yaml']) {
     def GIT_REPO = gitRepo.replaceFirst(/^https?:\/\//, '')
     def GIT_BRANCH = gitTag ?: 'main'
@@ -31,6 +39,10 @@ class JenkinsRepo implements Serializable {
     }
   }
 
+  /**
+   * Retrieve all catalog files in the repository, including following targets in Location files
+   * Returns a list of catalog file paths
+   */
   def retrieveRepoCatalogs() {
     def catalogs = ['catalog-info.yaml']
 
@@ -52,11 +64,21 @@ class JenkinsRepo implements Serializable {
     return catalogs;
   }
 
+  /**
+   * Get the playbook path from catalog metadata annotations, or default to 'playbooks'
+   * - Positional parameters
+   * catalogInfo   map   The catalog info map as returned by findServiceInCatalogs()
+   */
   def getPlaybookPath(catalogInfo) {
     def playbookPath = catalogInfo.catalog.metadata.annotations['playbook.io.nrs.gov.bc.ca/playbookPath'] ?: 'playbooks'
     return "${catalogInfo.dir}/${playbookPath}"
   }
 
+  /**
+   * Retrieve the service playbook directory by adding it to sparse checkout
+   * - Positional parameters
+   * catalogInfo   map   The catalog info map as returned by findServiceInCatalogs()
+   */
   def retrieveServicePlaybookDir(catalogInfo) {
     def playbookPath = getPlaybookPath(catalogInfo)
     script.sh """
@@ -66,6 +88,14 @@ class JenkinsRepo implements Serializable {
     return playbookPath
   }
 
+  /**
+   * Find the service in the list of catalog files
+   * - Positional parameters
+   * catalogs   list    List of catalog file paths
+   * service    string  The service name to find
+   * Returns a map with keys: path, dir, catalog
+   * or null if not found
+   */
   def findServiceInCatalogs(catalogs, service) {
     for (catalogFile in catalogs) {
       def catalog = script.readYaml(file: catalogFile)
