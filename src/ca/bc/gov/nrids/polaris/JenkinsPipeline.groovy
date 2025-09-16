@@ -33,18 +33,14 @@ class JenkinsPipeline implements Serializable {
   }
 
   def loginAndPreparePodmanSteps(intention, podman, loginAction: "login") {
-    script.steps {
-      script.script {
-        intention.startAction(loginAction)
+    intention.startAction(loginAction)
 
-        def vaultToken = intention.provisionToken(loginAction, script.credentials('knox-jenkins-jenkins-apps-prod-role-id'))
-        def vault = new Vault(vaultToken)
-        vault.readToObject("apps/data/prod/jenkins/jenkins-apps/artifactory", env)
-        vault.readToObject("apps/data/prod/jenkins/jenkins-apps/cdua", env)
-        vault.revokeToken()
+    def vaultToken = intention.provisionToken(loginAction, script.credentials('knox-jenkins-jenkins-apps-prod-role-id'))
+    def vault = new Vault(vaultToken)
+    vault.readToObject("apps/data/prod/jenkins/jenkins-apps/artifactory", env)
+    vault.readToObject("apps/data/prod/jenkins/jenkins-apps/cdua", env)
+    vault.revokeToken()
 
-        podman.login(options: "-u ${env.REGISTRY_USERNAME} -p ${env.REGISTRY_PASSWORD}")
-      }
-    }
-  }
+    podman.login(options: "-u ${env.REGISTRY_USERNAME} -p ${env.REGISTRY_PASSWORD}")
+  }\
 }
