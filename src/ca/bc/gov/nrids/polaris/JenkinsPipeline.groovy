@@ -9,6 +9,31 @@ class JenkinsPipeline implements Serializable {
     this.script = script
   }
 
+  def banner(env, pipelineFolder) {
+    echo """
+    ====================================================
+    -                NR Polaris Pipeline               -
+    ====================================================
+
+    Job:    ${env.JOB_NAME}
+    Build:  #${env.BUILD_NUMBER}
+    URL:    ${env.BUILD_URL}
+
+    Service control pipeline:
+    https://github.com/bcgov-nr/polaris-pipelines
+
+    Jenkinsfile:
+    https://github.com/bcgov-nr/polaris-pipelines/blob/main/pipelines/${pipelineFolder}/Jenkinsfile
+
+    Ansible Polaris collection:
+    https://github.com/bcgov/nr-polaris-collection
+
+    Developers are expected to review the documentation
+    of all roles used by their Ansible playbook file.
+    ====================================================
+    """.replaceAll("(?m)^[ \t]+", "")
+  }
+
   def retrieveAnsibleInventory(Map config = [:]) {
     // script.stage('Checkout INFRA dev-all-in-one') {
       script.checkout([
