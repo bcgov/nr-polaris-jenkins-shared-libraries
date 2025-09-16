@@ -10,7 +10,7 @@ class JenkinsPipeline implements Serializable {
   }
 
   def banner(env, pipelineFolder) {
-    echo """
+    script.echo """
     ====================================================
     -                NR Polaris Pipeline               -
     ====================================================
