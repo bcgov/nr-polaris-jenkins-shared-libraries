@@ -103,22 +103,22 @@ class BrokerApi implements Serializable {
     return this.isResponseSuccess(request.getResponseCode())
   }
 
-  public boolean registerActionArtifact(String action, String message) {
+  public boolean registerActionArtifact(String token, String action, String message) {
     def request = new URL(this.BROKER_BASE_URL + "intention/action/artifact").openConnection()
     request.setRequestMethod("POST")
     request.setDoOutput(true)
     request.setRequestProperty("Content-Type", "application/json")
-    request.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
+    request.setRequestProperty(HEADER_BROKER_TOKEN, token)
     request.getOutputStream().write(message.getBytes("UTF-8"))
     return this.isResponseSuccess(request.getResponseCode())
   }
 
-  public boolean patchAction(String action, String message) {
+  public boolean patchAction(String token, String action, String message) {
     def request = new URL(this.BROKER_BASE_URL + "intention/action/patch").openConnection()
     request.setRequestMethod("POST")
     request.setDoOutput(true)
     request.setRequestProperty("Content-Type", "application/json")
-    request.setRequestProperty(HEADER_BROKER_TOKEN, this.openResponse.actions[action].token)
+    request.setRequestProperty(HEADER_BROKER_TOKEN, token)
     request.getOutputStream().write(message.getBytes("UTF-8"))
     def responseCode = request.getResponseCode()
     if (!this.isResponseSuccess(responseCode)) {

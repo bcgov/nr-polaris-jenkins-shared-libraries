@@ -225,7 +225,7 @@ class BrokerIntention implements Serializable {
     if (!action || !this.openResponse.actions[action]) {
       throw new IllegalArgumentException()
     }
-    return this.brokerApi.registerActionArtifact(action, message)
+    return this.brokerApi.registerActionArtifact(this.openResponse.actions[action].token, action, message)
   }
 
   public boolean patchAction(String action, String message) {
@@ -235,7 +235,7 @@ class BrokerIntention implements Serializable {
     if (!action || !this.openResponse.actions[action]) {
       throw new IllegalArgumentException()
     }
-    return this.brokerApi.patchAction(action, message)
+    return this.brokerApi.patchAction(this.openResponse.actions[action].token, action, message)
   }
 
   /**
