@@ -1,11 +1,9 @@
 # polaris-shared-libraries
 
 ## Overview
---------
-This repository contains the Polaris Jenkins Shared Library used across BC Gov Polaris Jenkins pipelines. It provides pipeline steps, helper classes (e.g. Podman, BrokerIntention), and common utilities consumed by multiple type deployment repos.
+This repository contains the Polaris Jenkins Shared Library used across BC Gov Polaris Jenkins pipelines. It provides pipeline steps, helper classes (e.g. Podman, BrokerIntention, Vault, BrokerApi), and common utilities.
 
 ## Releasing a new library version 
------------------------------------------------
 1. Ensure tests and pipeline validation pass (locally or in CI).
 2. Pick the release tag (semantic version recommended), e.g. v1.2.3.
 3. Create a GitHub release (requires GitHub CLI):
@@ -17,7 +15,6 @@ Notes:
 - Jenkins can be configured to load this shared library by tag (recommended for reproducible pipelines).
 
 ## Update Jenkins pipeline repo to use the new library tag
-------------------------------------------
 Pipelines reference the shared library in Jenkinsfiles, for example:
 
   @Library('polaris@v1.0.0')
@@ -37,6 +34,5 @@ Recommended approach:
 3. Create a GitHub release (requires GitHub CLI) on Jenkins pipeline repo or use GitHub web side draft a new release to publish a new release
 
 # References
-----------
 - Jenkins pipeline shared libraries documentation: https://www.jenkins.io/doc/book/pipeline/shared-libraries/
 - GitHub CLI (optional): https://cli.github.com/
