@@ -25,7 +25,7 @@ Recommended approach:
 1. From Polaris Jenkins pipeline repo(https://github.com/bcgov/nr-polaris-pipelines), run an update script that replaces the library tag for all Jenkinsfile. In scripts folder, there is a script file named `update_polaris_library_tag.sh`, run:
 ```
    cd /path/to/nr-polaris-pipelines
-   ./.github/workflows/update_polaris_library_tag.sh
+   ./scripts/update_polaris_library_tag.sh
    Enter the polaris library tag or branch (e.g., v1.2.3): v1.0.0
 ```
 
