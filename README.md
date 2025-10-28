@@ -9,7 +9,7 @@ This repository contains the Polaris Jenkins Shared Library used across BC Gov P
 3. Create a GitHub release (requires GitHub CLI):
    gh release create v1.2.3 -t "v1.2.3" -n "Release notes here"
    Or
-   You can use Github web to draft a new release to publish a new release
+   draft and publish it via the GitHub web UI.
 
 Notes:
 - Jenkins can be configured to load this shared library by tag (recommended for reproducible pipelines).
@@ -31,7 +31,7 @@ Recommended approach:
 
 2. Commit and push the changes, then run the pipeline to validate.
 
-3. Create a GitHub release (requires GitHub CLI) on Jenkins pipeline repo or use GitHub web side draft a new release to publish a new release
+3. Publish a new release for the Jenkins pipeline repository — either create it with the GitHub CLI or draft and publish it via the GitHub web UI.
 
 # References
 - Jenkins pipeline shared libraries documentation: https://www.jenkins.io/doc/book/pipeline/shared-libraries/
