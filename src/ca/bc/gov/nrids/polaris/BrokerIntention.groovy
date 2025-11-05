@@ -182,7 +182,7 @@ class BrokerIntention implements Serializable {
    */
   public boolean open(Map args) {
     def message = groovy.json.JsonOutput.toJson(intention)
-    this.openResponse = this.brokerApi.openIntention(message)
+    this.openResponse = this.brokerApi.openIntention(args, message)
   }
   def open() {
     this.open([:])
