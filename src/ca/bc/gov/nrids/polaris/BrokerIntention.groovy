@@ -134,7 +134,9 @@ class BrokerIntention implements Serializable {
     }
     if (args.environment) {
       for (action in this.intention.actions) {
-        action.service.environment = (String) args.environment
+        if (!action.service.environment) {
+          action.service.environment = (String) args.environment
+        }
       }
     }
     this.updatePackageForAction("package-build", "buildGuid", args.packageBuildBuildGuid)
