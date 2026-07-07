@@ -149,7 +149,7 @@ class BrokerIntention implements Serializable {
     // Update installation package
     this.updatePackageForAction("package-installation", "name", args.packageInstallationName)
     this.updatePackageForAction("package-installation", "version", args.packageInstallationVersion)
-    // Depracted: Use setActionReferences to set source references for package-installation actions
+    // Deprecated: Use setActionReferences to set source references for package-installation actions
     if (args.packageInstallationSourceIntention) {
       for (action in this.intention.actions) {
         if (action.action == "package-installation") {
