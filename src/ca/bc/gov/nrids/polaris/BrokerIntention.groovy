@@ -327,6 +327,10 @@ class BrokerIntention implements Serializable {
       throw new IllegalArgumentException("actionName is required")
     }
     for (action in this.intention.actions) {
+      // Remove deprecated action.source field if it exists
+      if (action.source) {
+        action.remove("source")
+      }
       if (action.action == actionName) {
         action.references = references
       }
