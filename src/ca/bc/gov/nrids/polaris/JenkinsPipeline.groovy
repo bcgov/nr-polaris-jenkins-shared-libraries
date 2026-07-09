@@ -1,5 +1,10 @@
 package ca.bc.gov.nrids.polaris
 
+/**
+ * Jenkins pipeline helper for common NR Polaris pipeline operations.
+ * Provides methods for displaying banners, checking out inventories,
+ * retrieving Ansible collections, and preparing the Podman environment.
+ */
 class JenkinsPipeline implements Serializable {
 
   def script
@@ -95,5 +100,5 @@ class JenkinsPipeline implements Serializable {
     vault.revokeToken()
 
     podman.login(options: "-u ${env.REGISTRY_USERNAME} -p ${env.REGISTRY_PASSWORD}")
-  }\
+  }
 }
