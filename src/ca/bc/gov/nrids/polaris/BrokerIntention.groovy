@@ -149,7 +149,7 @@ class BrokerIntention implements Serializable {
     // Update installation package
     this.updatePackageForAction("package-installation", "name", args.packageInstallationName)
     this.updatePackageForAction("package-installation", "version", args.packageInstallationVersion)
-    // Update installation source
+    // Deprecated: Use setActionReferences to set source references for package-installation actions
     if (args.packageInstallationSourceIntention) {
       for (action in this.intention.actions) {
         if (action.action == "package-installation") {
@@ -310,6 +310,29 @@ class BrokerIntention implements Serializable {
         if (action.action == actionName) {
           action.package[key] = value
         }
+      }
+    }
+  }
+
+  /**
+   * Set the references field on actions matching the specified action name.
+   * - Positional parameters
+   * actionName   String           The action name to match (e.g. "package-installation")
+   * references   List<Map>        List of reference objects, each with:
+   *                               - intention  (String, required)
+   *                               - action     (String, optional)
+   */
+  public void setActionReferences(String actionName, List<Map> references) {
+    if (!actionName) {
+      throw new IllegalArgumentException("actionName is required")
+    }
+    for (action in this.intention.actions) {
+      // Remove deprecated action.source field if it exists
+      if (action.source) {
+        action.remove("source")
+      }
+      if (action.action == actionName) {
+        action.references = references
       }
     }
   }
